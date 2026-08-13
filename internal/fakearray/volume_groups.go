@@ -1,4 +1,4 @@
-package mock
+package fakearray
 
 import (
 	"fmt"
@@ -27,7 +27,12 @@ func (array *Array) GetVolumeGroupByName(name string) (*faclient.VolumeGroup, er
 }
 
 func (array *Array) GetVolumeGroups() []faclient.VolumeGroup {
-	return slices.Collect(SeqToValue(slices.Values(array.VolumeGroups)))
+	volumeGroups := make([]faclient.VolumeGroup, len(array.VolumeGroups))
+	for i, vg := range array.VolumeGroups {
+		volumeGroups[i] = *vg
+	}
+	return volumeGroups
+	// return slices.Collect(SeqToValue(slices.Values(array.VolumeGroups))) --- IGNORE ---
 }
 
 func NewVolumeGroup(name string, post *faclient.VolumeGroupPost) *faclient.VolumeGroup {
@@ -44,8 +49,12 @@ func NewVolumeGroup(name string, post *faclient.VolumeGroupPost) *faclient.Volum
 	}
 
 	return &faclient.VolumeGroup{
-		Id:                 uuid.New().String(),
-		Name:               name,
+		VolumeGroupShort: faclient.VolumeGroupShort{
+			FixedReference: faclient.FixedReference{
+				Id:   uuid.New().String(),
+				Name: name,
+			},
+		},
 		Destroyed:          destroyed,
 		PriorityAdjustment: priorityAdjustment,
 		QoS:                qos,
@@ -63,6 +72,11 @@ func (array *Array) AddVolumeGroup(vg faclient.VolumeGroup) (*faclient.VolumeGro
 	return &vg, nil
 }
 
+func (array *Array) CreateVolumeGroup(name string, post faclient.VolumeGroupPost) (*faclient.VolumeGroup, error) {
+	newVolumeGroup := NewVolumeGroup(name, &post)
+	return array.AddVolumeGroup(*newVolumeGroup)
+}
+
 func (array *Array) UpdateVolumeGroup(id string, vgPatch faclient.VolumeGroupPatch) (*faclient.VolumeGroup, error) {
 	for i := range array.VolumeGroups {
 		if array.VolumeGroups[i].Id == id {
@@ -78,10 +92,16 @@ func (array *Array) UpdateVolumeGroup(id string, vgPatch faclient.VolumeGroupPat
 			if vgPatch.QoS != nil {
 				array.VolumeGroups[i].QoS = *vgPatch.QoS
 			}
+			return array.VolumeGroups[i], nil
 		}
 	}
 
 	return nil, fmt.Errorf("volume group with ID %s not found", id)
+}
+
+func (array *Array) DestroyVolumeGroup(id string) error {
+	_, err := array.UpdateVolumeGroup(id, faclient.VolumeGroupPatch{Destroyed: toPtr(true)})
+	return err
 }
 
 func (array *Array) EradicateVolumeGroup(id string) error {
@@ -92,4 +112,19 @@ func (array *Array) EradicateVolumeGroup(id string) error {
 		}
 	}
 	return fmt.Errorf("volume group with ID %s not found", id)
+}
+
+func (array *Array) GetVolumeGroupMembers(volumeGroupNames []string, volumeNames []string) ([]faclient.VolumeGroupMember, error) {
+	members := []faclient.VolumeGroupMember{}
+	for _, volume := range array.Volumes {
+		if len(volumeNames) < 1 || slices.Contains(volumeNames, volume.Name) {
+			if len(volumeGroupNames) < 1 || slices.Contains(volumeGroupNames, volume.VolumeGroup.Name) {
+				members = append(members, faclient.VolumeGroupMember{
+					Group:  *volume.VolumeGroup,
+					Member: volume.VolumeShort,
+				})
+			}
+		}
+	}
+	return members, nil
 }

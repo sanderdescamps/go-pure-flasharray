@@ -2,10 +2,10 @@ package mock
 
 import (
 	"encoding/json"
-	"io"
-	"io/fs"
 	"iter"
 	"math/rand"
+	"net/http"
+	"strings"
 )
 
 func NewRandomString(n int) string {
@@ -15,20 +15,6 @@ func NewRandomString(n int) string {
 		b[i] = chars[rand.Intn(len(chars))]
 	}
 	return string(b)
-}
-
-// loadJSONFromFile loads JSON data from a file and unmarshals it into the provided destination structure.
-func loadJSONFromFile(file fs.File, dest interface{}) error {
-	data, err := io.ReadAll(file)
-	if err != nil {
-		return err
-	}
-
-	if err := json.Unmarshal(data, dest); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func SeqApply[T any, S any](seq iter.Seq[T], f func(T) S) iter.Seq[S] {
@@ -63,4 +49,35 @@ func SeqToValue[T any](seq iter.Seq[*T]) iter.Seq[T] {
 			}
 		}
 	}
+}
+
+func splitQueryParam(param string) []string {
+	if param == "" {
+		return []string{}
+	}
+	return strings.Split(param, ",")
+}
+
+type ErrorResponse struct {
+	Errors []ErrorMsg `json:"errors"`
+}
+
+type ErrorMsg struct {
+	Context interface{} `json:"context"`
+	Message string      `json:"message"`
+}
+
+func httpJsonError(w http.ResponseWriter, msg string, statusCode int) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+
+	body := ErrorResponse{
+		Errors: []ErrorMsg{
+			{
+				Context: nil,
+				Message: msg,
+			},
+		},
+	}
+	json.NewEncoder(w).Encode(body)
 }

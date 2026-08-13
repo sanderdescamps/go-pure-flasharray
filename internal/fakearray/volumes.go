@@ -1,4 +1,4 @@
-package mock
+package fakearray
 
 import (
 	"fmt"
@@ -9,12 +9,17 @@ import (
 	faclient "github.com/sanderdescamps/go-purefa"
 )
 
+const (
+	// bytesInKB = 1024 * 1024
+	bytesInMB = 1024 * 1024
+)
+
 var (
 	ErrNotFound      = fmt.Errorf("not found")
 	ErrAlreadyExists = fmt.Errorf("already exists")
 )
 
-func NewVolumeFromVolumePost(volumePost faclient.VolumePost, name string) faclient.Volume {
+func NewVolumeFromPost(name string, volumePost faclient.VolumePost) faclient.Volume {
 	priorityAdjustment := faclient.NewPriorityAdjustmentDefault()
 	if volumePost.PriorityAdjustment != nil {
 		priorityAdjustment = *volumePost.PriorityAdjustment
@@ -30,15 +35,24 @@ func NewVolumeFromVolumePost(volumePost faclient.VolumePost, name string) faclie
 		qos = *volumePost.QoS
 	}
 
+	provisioned := int64(1) * bytesInMB
+	if volumePost.Provisioned != 0 {
+		provisioned = volumePost.Provisioned
+	}
+
 	newVolume := faclient.Volume{
-		Id:                      uuid.New().String(),
-		Name:                    name,
+		VolumeShort: faclient.VolumeShort{
+			FixedReference: faclient.FixedReference{
+				Id:   uuid.New().String(),
+				Name: name,
+			},
+		},
 		ConnectionCount:         0,
 		Created:                 time.Now().UnixMilli(),
 		Destroyed:               destroyed,
 		HostEncryptionKeyStatus: "none",
 		PriorityAdjustment:      priorityAdjustment,
-		Provisioned:             volumePost.Provisioned,
+		Provisioned:             provisioned,
 		QoS:                     qos,
 		Serial:                  NewVolumeSerial(),
 		Space:                   faclient.Space{},
