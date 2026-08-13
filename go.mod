@@ -1,4 +1,4 @@
-module github.com/sanderdescamps/go-purefa-mock
+module github.com/sanderdescamps/go-pure-flasharray
 
 go 1.26.5
 

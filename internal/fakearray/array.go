@@ -11,8 +11,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
-	"github.com/sanderdescamps/go-purefa-mock/pkg/testdata"
+	"github.com/sanderdescamps/go-pure-flasharray/pkg/flashclient"
+	"github.com/sanderdescamps/go-pure-flasharray/pkg/testdata"
 )
 
 var (

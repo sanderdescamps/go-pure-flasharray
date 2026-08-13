@@ -11,8 +11,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/sanderdescamps/go-purefa-mock/internal/fakearray"
-	"github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
+	"github.com/sanderdescamps/go-pure-flasharray/internal/fakearray"
+	"github.com/sanderdescamps/go-pure-flasharray/pkg/flashclient"
 
 	"github.com/gorilla/mux"
 )

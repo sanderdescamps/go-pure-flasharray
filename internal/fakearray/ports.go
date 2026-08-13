@@ -1,6 +1,6 @@
 package fakearray
 
-import "github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
+import "github.com/sanderdescamps/go-pure-flasharray/pkg/flashclient"
 
 func (array *Array) GetPorts(filters ...func(*flashclient.Port) bool) []flashclient.Port {
 	ports := []flashclient.Port{}

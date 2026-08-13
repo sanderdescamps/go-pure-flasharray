@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
+	"github.com/sanderdescamps/go-pure-flasharray/pkg/flashclient"
 )
 
 func TestConnections(t *testing.T) {

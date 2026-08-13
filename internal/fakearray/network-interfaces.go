@@ -3,7 +3,7 @@ package fakearray
 import (
 	"fmt"
 
-	"github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
+	"github.com/sanderdescamps/go-pure-flasharray/pkg/flashclient"
 )
 
 func (array *Array) GetNetworkInterfaces(filters ...func(*flashclient.NetworkInterface) bool) []flashclient.NetworkInterface {

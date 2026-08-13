@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
+	"github.com/sanderdescamps/go-pure-flasharray/pkg/flashclient"
 )
 
 func TestHosts(t *testing.T) {

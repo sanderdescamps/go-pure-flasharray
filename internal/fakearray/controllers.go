@@ -1,6 +1,6 @@
 package fakearray
 
-import "github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
+import "github.com/sanderdescamps/go-pure-flasharray/pkg/flashclient"
 
 func (array *Array) GetControllers() []flashclient.Controller {
 	controllers := make([]flashclient.Controller, len(array.Controllers))

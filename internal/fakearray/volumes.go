@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
+	"github.com/sanderdescamps/go-pure-flasharray/pkg/flashclient"
 )
 
 const (

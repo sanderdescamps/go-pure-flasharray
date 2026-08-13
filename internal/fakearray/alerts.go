@@ -1,7 +1,7 @@
 package fakearray
 
 import (
-	"github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
+	"github.com/sanderdescamps/go-pure-flasharray/pkg/flashclient"
 )
 
 func AlertsWithFlagged(flagged bool) func(*flashclient.Alert) bool {

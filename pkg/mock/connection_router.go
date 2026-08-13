@@ -8,8 +8,8 @@ import (
 	"slices"
 
 	"github.com/gorilla/mux"
-	"github.com/sanderdescamps/go-purefa-mock/internal/fakearray"
-	"github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
+	"github.com/sanderdescamps/go-pure-flasharray/internal/fakearray"
+	"github.com/sanderdescamps/go-pure-flasharray/pkg/flashclient"
 )
 
 func InitConnectionRouter(r *mux.Router, array *fakearray.Array, logger *slog.Logger) {

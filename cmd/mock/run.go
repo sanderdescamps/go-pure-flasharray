@@ -11,8 +11,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/sanderdescamps/go-purefa-mock/internal/fakearray"
-	"github.com/sanderdescamps/go-purefa-mock/pkg/mock"
+	"github.com/sanderdescamps/go-pure-flasharray/internal/fakearray"
+	"github.com/sanderdescamps/go-pure-flasharray/pkg/mock"
 	"github.com/spf13/cobra"
 )
 

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
+	"github.com/sanderdescamps/go-pure-flasharray/pkg/flashclient"
 )
 
 func NewHostPost(name string, hostPost flashclient.HostPostBody) flashclient.Host {

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/sanderdescamps/go-purefa-mock/internal/fakearray"
-	"github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
+	"github.com/sanderdescamps/go-pure-flasharray/internal/fakearray"
+	"github.com/sanderdescamps/go-pure-flasharray/pkg/flashclient"
 	"github.com/spf13/cobra"
 )
 

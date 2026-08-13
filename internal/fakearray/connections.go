@@ -3,7 +3,7 @@ package fakearray
 import (
 	"slices"
 
-	"github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
+	"github.com/sanderdescamps/go-pure-flasharray/pkg/flashclient"
 )
 
 func ConnectionsWithHostGroupNames(hostGroupNames ...string) func(*flashclient.Connection) bool {

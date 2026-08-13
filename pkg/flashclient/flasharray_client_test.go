@@ -10,8 +10,8 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
-	"github.com/sanderdescamps/go-purefa-mock/pkg/mock"
+	"github.com/sanderdescamps/go-pure-flasharray/pkg/flashclient"
+	"github.com/sanderdescamps/go-pure-flasharray/pkg/mock"
 )
 
 const (
