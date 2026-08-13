@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["v*"]
+  pull_request:
+
+jobs:
+  build:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Build
+        run: go build ./...
+
+      - name: Test
+        run: go test ./...
+
+  release:
+    name: Release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Build mock binary (Linux amd64)
+        run: GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o dist/go-purefa-mock-linux-amd64 ./cmd/mock
+
+      - name: Build mock binary (Linux arm64)
+        run: GOOS=linux GOARCH=arm64 go build -ldflags="-s -w" -o dist/go-purefa-mock-linux-arm64 ./cmd/mock
+
+      - name: Build mock binary (macOS amd64)
+        run: GOOS=darwin GOARCH=amd64 go build -ldflags="-s -w" -o dist/go-purefa-mock-darwin-amd64 ./cmd/mock
+
+      - name: Build mock binary (macOS arm64)
+        run: GOOS=darwin GOARCH=arm64 go build -ldflags="-s -w" -o dist/go-purefa-mock-darwin-arm64 ./cmd/mock
+
+      - name: Build mock binary (Windows amd64)
+        run: GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o dist/go-purefa-mock-windows-amd64.exe ./cmd/mock
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true
