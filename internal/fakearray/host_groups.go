@@ -4,18 +4,18 @@ import (
 	"fmt"
 	"slices"
 
-	faclient "github.com/sanderdescamps/go-purefa"
+	"github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
 )
 
-func (array *Array) GetHostGroups() []faclient.HostGroup {
-	hostGroups := make([]faclient.HostGroup, len(array.HostGroups))
+func (array *Array) GetHostGroups() []flashclient.HostGroup {
+	hostGroups := make([]flashclient.HostGroup, len(array.HostGroups))
 	for i, hg := range array.HostGroups {
 		hostGroups[i] = *hg
 	}
 	return hostGroups
 }
 
-func (array *Array) GetHostGroup(name string) (*faclient.HostGroup, error) {
+func (array *Array) GetHostGroup(name string) (*flashclient.HostGroup, error) {
 	for _, hg := range array.HostGroups {
 		if hg.Name == name {
 			return hg, nil
@@ -24,10 +24,10 @@ func (array *Array) GetHostGroup(name string) (*faclient.HostGroup, error) {
 	return nil, fmt.Errorf("host group with name %s not found", name)
 }
 
-func NewHostGroup(name string) *faclient.HostGroup {
-	return &faclient.HostGroup{
-		HostGroupShort: faclient.HostGroupShort{
-			NoIdReference: faclient.NoIdReference{
+func NewHostGroup(name string) *flashclient.HostGroup {
+	return &flashclient.HostGroup{
+		HostGroupShort: flashclient.HostGroupShort{
+			NoIdReference: flashclient.NoIdReference{
 				Name: name,
 			},
 		},
@@ -36,7 +36,7 @@ func NewHostGroup(name string) *faclient.HostGroup {
 	}
 }
 
-func (array *Array) AddHostGroup(hg faclient.HostGroup) (*faclient.HostGroup, error) {
+func (array *Array) AddHostGroup(hg flashclient.HostGroup) (*flashclient.HostGroup, error) {
 	for _, h := range array.HostGroups {
 		if h.Name == hg.Name {
 			return nil, fmt.Errorf("host group with name %s already exists", hg.Name)
@@ -46,7 +46,7 @@ func (array *Array) AddHostGroup(hg faclient.HostGroup) (*faclient.HostGroup, er
 	return &hg, nil
 }
 
-func (array *Array) UpdateHostGroup(name string, hgPatch faclient.HostGroupPatchBody) (*faclient.HostGroup, error) {
+func (array *Array) UpdateHostGroup(name string, hgPatch flashclient.HostGroupPatchBody) (*flashclient.HostGroup, error) {
 	for i, hg := range array.HostGroups {
 		if hg.Name == name {
 			if hgPatch.Name != "" {
@@ -85,13 +85,13 @@ func (array *Array) DeleteHostGroup(name string) error {
 // 	return members, nil
 // }
 
-func (array *Array) GetHostGroupMembers(hostGroupNames []string, hostNames []string) ([]faclient.HostGroupMember, error) {
-	members := []faclient.HostGroupMember{}
+func (array *Array) GetHostGroupMembers(hostGroupNames []string, hostNames []string) ([]flashclient.HostGroupMember, error) {
+	members := []flashclient.HostGroupMember{}
 	for _, host := range array.Hosts {
 		if len(hostNames) < 1 || slices.Contains(hostNames, host.Name) {
 			fmt.Printf("Check if groups %v contains %s\n", hostGroupNames, host.HostGroup.Name)
 			if len(hostGroupNames) < 1 || slices.Contains(hostGroupNames, host.HostGroup.Name) {
-				members = append(members, faclient.HostGroupMember{
+				members = append(members, flashclient.HostGroupMember{
 					Group:  host.HostGroup,
 					Member: host.HostShort,
 				})
@@ -101,19 +101,19 @@ func (array *Array) GetHostGroupMembers(hostGroupNames []string, hostNames []str
 	return members, nil
 }
 
-func (array *Array) AddHostGroupMembers(hostGroupName string, hostNames []string) ([]faclient.HostGroupMember, error) {
+func (array *Array) AddHostGroupMembers(hostGroupName string, hostNames []string) ([]flashclient.HostGroupMember, error) {
 	group, err := array.GetHostGroup(hostGroupName)
 	if err != nil {
 		return nil, err
 	}
 
-	members := []faclient.HostGroupMember{}
+	members := []flashclient.HostGroupMember{}
 	for _, host := range array.Hosts {
 		if slices.Contains(hostNames, host.Name) {
-			array.UpdateHost(host.Name, faclient.HostPatchBody{
+			array.UpdateHost(host.Name, flashclient.HostPatchBody{
 				HostGroup: &group.HostGroupShort,
 			})
-			members = append(members, faclient.HostGroupMember{
+			members = append(members, flashclient.HostGroupMember{
 				Group:  group.HostGroupShort,
 				Member: host.HostShort,
 			})
@@ -125,7 +125,7 @@ func (array *Array) AddHostGroupMembers(hostGroupName string, hostNames []string
 func (array *Array) DeleteHostGroupMembers(hostGroupName string, hostNames []string) error {
 	for _, host := range array.Hosts {
 		if slices.Contains(hostNames, host.Name) {
-			host.HostGroup = faclient.HostGroupShort{}
+			host.HostGroup = flashclient.HostGroupShort{}
 		}
 	}
 	return nil

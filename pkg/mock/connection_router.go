@@ -8,8 +8,8 @@ import (
 	"slices"
 
 	"github.com/gorilla/mux"
-	faclient "github.com/sanderdescamps/go-purefa"
 	"github.com/sanderdescamps/go-purefa-mock/internal/fakearray"
+	"github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
 )
 
 func InitConnectionRouter(r *mux.Router, array *fakearray.Array, logger *slog.Logger) {
@@ -37,7 +37,7 @@ func GetConnectionsHandler(array *fakearray.Array, logger *slog.Logger) http.Han
 		slices.Sort(volumeIds)
 		volumeIds = slices.Compact(volumeIds)
 
-		filters := []func(*faclient.Connection) bool{}
+		filters := []func(*flashclient.Connection) bool{}
 		if len(hostGroupNames) > 0 {
 			filters = append(filters, fakearray.ConnectionsWithHostGroupNames(hostGroupNames...))
 		}
@@ -52,7 +52,7 @@ func GetConnectionsHandler(array *fakearray.Array, logger *slog.Logger) http.Han
 		logger.DebugContext(r.Context(), "Returning connections", "count", len(connections))
 
 		w.Header().Set("Content-Type", "application/json")
-		data := faclient.NewResults(connections)
+		data := flashclient.NewResults(connections)
 		json.NewEncoder(w).Encode(data)
 	}
 }
@@ -112,14 +112,14 @@ func PostConnectionsHandler(array *fakearray.Array, logger *slog.Logger) http.Ha
 		slices.Sort(hostNames)
 		hostNames = slices.Compact(hostNames)
 
-		var postBody faclient.ConnectionPostBody
+		var postBody flashclient.ConnectionPostBody
 		err := json.NewDecoder(r.Body).Decode(&postBody)
 		if err != nil {
 			httpJsonError(w, fmt.Sprintf("Invalid request body: %v", err), http.StatusBadRequest)
 			return
 		}
 
-		connections := []*faclient.Connection{}
+		connections := []*flashclient.Connection{}
 		for _, hostName := range hostNames {
 			for _, volumeId := range volumeIds {
 				connection, err := array.CreateConnection(hostName, volumeId, postBody)
@@ -133,7 +133,7 @@ func PostConnectionsHandler(array *fakearray.Array, logger *slog.Logger) http.Ha
 			}
 		}
 		w.Header().Set("Content-Type", "application/json")
-		result := faclient.NewResults(connections)
+		result := flashclient.NewResults(connections)
 		json.NewEncoder(w).Encode(result)
 	}
 }

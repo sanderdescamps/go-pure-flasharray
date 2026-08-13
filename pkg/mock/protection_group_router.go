@@ -9,8 +9,8 @@ import (
 	"slices"
 
 	"github.com/gorilla/mux"
-	faclient "github.com/sanderdescamps/go-purefa"
 	"github.com/sanderdescamps/go-purefa-mock/internal/fakearray"
+	"github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
 )
 
 func InitProtectionGroupRouter(r *mux.Router, array *fakearray.Array, logger *slog.Logger) {
@@ -35,7 +35,7 @@ func InitProtectionGroupRouter(r *mux.Router, array *fakearray.Array, logger *sl
 
 func GetProtectionGroupsHandler(array *fakearray.Array, logger *slog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		protectionGroups := []faclient.ProtectionGroup{}
+		protectionGroups := []flashclient.ProtectionGroup{}
 		if ids := r.URL.Query().Get("ids"); ids != "" {
 			for _, id := range splitQueryParam(ids) {
 				pg, err := array.GetProtectionGroup(id)
@@ -65,7 +65,7 @@ func GetProtectionGroupsHandler(array *fakearray.Array, logger *slog.Logger) htt
 
 		logger.DebugContext(r.Context(), "Returning protection groups", "count", len(protectionGroups))
 		w.Header().Set("Content-Type", "application/json")
-		data := faclient.NewResults(protectionGroups)
+		data := flashclient.NewResults(protectionGroups)
 		json.NewEncoder(w).Encode(data)
 	}
 }
@@ -78,7 +78,7 @@ func PostProtectionGroupHandler(array *fakearray.Array, logger *slog.Logger) htt
 			return
 		}
 
-		protectionGroupsCreated := []faclient.ProtectionGroup{}
+		protectionGroupsCreated := []flashclient.ProtectionGroup{}
 		for _, name := range protectionGroupNames {
 			newProtectionGroup := fakearray.NewProtectionGroupPost(name)
 			pg, err := array.AddProtectionGroup(*newProtectionGroup)
@@ -91,7 +91,7 @@ func PostProtectionGroupHandler(array *fakearray.Array, logger *slog.Logger) htt
 			protectionGroupsCreated = append(protectionGroupsCreated, *pg)
 		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(faclient.NewResults(protectionGroupsCreated))
+		json.NewEncoder(w).Encode(flashclient.NewResults(protectionGroupsCreated))
 	}
 }
 
@@ -125,7 +125,7 @@ func PatchProtectionGroupHandler(array *fakearray.Array, logger *slog.Logger) ht
 			return
 		}
 
-		var protectionGroupPatch faclient.ProtectionGroupPatchBody
+		var protectionGroupPatch flashclient.ProtectionGroupPatchBody
 		err := json.NewDecoder(r.Body).Decode(&protectionGroupPatch)
 		if err != nil {
 			httpJsonError(w, fmt.Sprintf("Invalid request body: %v", err), http.StatusBadRequest)
@@ -137,7 +137,7 @@ func PatchProtectionGroupHandler(array *fakearray.Array, logger *slog.Logger) ht
 			return
 		}
 
-		protectionGroups := []faclient.ProtectionGroup{}
+		protectionGroups := []flashclient.ProtectionGroup{}
 		for _, id := range protectionGroupIds {
 			pg, err := array.UpdateProtectionGroup(id, protectionGroupPatch)
 			if err != nil {
@@ -150,7 +150,7 @@ func PatchProtectionGroupHandler(array *fakearray.Array, logger *slog.Logger) ht
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(faclient.NewResults(protectionGroups))
+		json.NewEncoder(w).Encode(flashclient.NewResults(protectionGroups))
 	}
 }
 
@@ -228,7 +228,7 @@ func GetProtectionGroupHostMembersHandler(array *fakearray.Array, logger *slog.L
 		logger.DebugContext(r.Context(), "Returning protection group host members", "count", len(members))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		data := faclient.NewResults(members)
+		data := flashclient.NewResults(members)
 		json.NewEncoder(w).Encode(data)
 	}
 }
@@ -263,7 +263,7 @@ func GetProtectionGroupHostGroupMembersHandler(array *fakearray.Array, logger *s
 		logger.DebugContext(r.Context(), "Returning protection group host group members", "count", len(members))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		data := faclient.NewResults(members)
+		data := flashclient.NewResults(members)
 		json.NewEncoder(w).Encode(data)
 	}
 }
@@ -309,7 +309,7 @@ func GetProtectionGroupVolumeMembersHandler(array *fakearray.Array, logger *slog
 		logger.DebugContext(r.Context(), "Returning protection group volume members", "count", len(members))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		data := faclient.NewResults(members)
+		data := flashclient.NewResults(members)
 		json.NewEncoder(w).Encode(data)
 	}
 }
@@ -335,7 +335,7 @@ func PostProtectionGroupHostMembersHandler(array *fakearray.Array, logger *slog.
 		slices.Sort(memberNames)
 		memberNames = slices.Compact(memberNames)
 
-		members := []faclient.ProtectionGroupHostMember{}
+		members := []flashclient.ProtectionGroupHostMember{}
 		for _, groupId := range groupIds {
 			for _, memberName := range memberNames {
 				member, err := array.AddProtectionGroupHostMember(groupId, memberName)
@@ -351,7 +351,7 @@ func PostProtectionGroupHostMembersHandler(array *fakearray.Array, logger *slog.
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		data := faclient.NewResults(members)
+		data := flashclient.NewResults(members)
 		json.NewEncoder(w).Encode(data)
 	}
 }
@@ -377,7 +377,7 @@ func PostProtectionGroupHostGroupMembersHandler(array *fakearray.Array, logger *
 		slices.Sort(memberNames)
 		memberNames = slices.Compact(memberNames)
 
-		members := []faclient.ProtectionGroupHostGroupMember{}
+		members := []flashclient.ProtectionGroupHostGroupMember{}
 		for _, groupId := range groupIds {
 			for _, memberName := range memberNames {
 				member, err := array.AddProtectionGroupHostGroupMember(groupId, memberName)
@@ -393,7 +393,7 @@ func PostProtectionGroupHostGroupMembersHandler(array *fakearray.Array, logger *
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		data := faclient.NewResults(members)
+		data := flashclient.NewResults(members)
 		json.NewEncoder(w).Encode(data)
 	}
 }
@@ -430,7 +430,7 @@ func PostProtectionGroupVolumeMembersHandler(array *fakearray.Array, logger *slo
 		slices.Sort(memberIds)
 		memberIds = slices.Compact(memberIds)
 
-		members := []faclient.ProtectionGroupVolumeMember{}
+		members := []flashclient.ProtectionGroupVolumeMember{}
 		for _, groupId := range groupIds {
 			for _, memberId := range memberIds {
 				member, err := array.AddProtectionGroupVolumeMember(groupId, memberId)
@@ -446,7 +446,7 @@ func PostProtectionGroupVolumeMembersHandler(array *fakearray.Array, logger *slo
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		data := faclient.NewResults(members)
+		data := flashclient.NewResults(members)
 		json.NewEncoder(w).Encode(data)
 	}
 }
@@ -586,12 +586,12 @@ func GetProtectionGroupSnapshotsHandler(array *fakearray.Array, logger *slog.Log
 		expectedResults := len(ids) + len(names) + len(sourceIds) + len(sourceNames)
 		logger.DebugContext(r.Context(), "Getting protection group snapshots", "expected", expectedResults)
 
-		filters := []func(*faclient.ProtectionGroupSnapshot) bool{}
+		filters := []func(*flashclient.ProtectionGroupSnapshot) bool{}
 		if len(ids) > 0 {
-			filters = append(filters, fakearray.WithIDs[faclient.ProtectionGroupSnapshot](ids...))
+			filters = append(filters, fakearray.WithIDs[flashclient.ProtectionGroupSnapshot](ids...))
 		}
 		if len(names) > 0 {
-			filters = append(filters, fakearray.WithNames[faclient.ProtectionGroupSnapshot](names...))
+			filters = append(filters, fakearray.WithNames[flashclient.ProtectionGroupSnapshot](names...))
 		}
 		if len(sourceIds) > 0 {
 			filters = append(filters, fakearray.ProtectionGroupSnapshotsWithSourceIds(sourceIds...))
@@ -614,7 +614,7 @@ func GetProtectionGroupSnapshotsHandler(array *fakearray.Array, logger *slog.Log
 		logger.DebugContext(r.Context(), "Returning protection group snapshots", "count", len(snapshots))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		data := faclient.NewResults(snapshots)
+		data := flashclient.NewResults(snapshots)
 		json.NewEncoder(w).Encode(data)
 	}
 }
@@ -636,14 +636,14 @@ func PostProtectionGroupSnapshotHandler(array *fakearray.Array, logger *slog.Log
 		slices.Sort(sourceIds)
 		sourceIds = slices.Compact(sourceIds)
 
-		body := faclient.ProtectionGroupSnapshotPostBody{}
+		body := flashclient.ProtectionGroupSnapshotPostBody{}
 		err := json.NewDecoder(r.Body).Decode(&body)
 		if err != nil {
 			httpJsonError(w, fmt.Sprintf("Invalid request body: %v", err), http.StatusBadRequest)
 			return
 		}
 
-		snapshots := []faclient.ProtectionGroupSnapshot{}
+		snapshots := []flashclient.ProtectionGroupSnapshot{}
 		for _, sourceId := range sourceIds {
 			snapshot, err := array.CreateProtectionGroupSnapshot(sourceId, body)
 			if errors.Is(err, fakearray.ErrNotFound) {
@@ -661,7 +661,7 @@ func PostProtectionGroupSnapshotHandler(array *fakearray.Array, logger *slog.Log
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		data := faclient.NewResults(snapshots)
+		data := flashclient.NewResults(snapshots)
 		json.NewEncoder(w).Encode(data)
 	}
 }
@@ -671,12 +671,12 @@ func PatchProtectionGroupSnapshotHandler(array *fakearray.Array, logger *slog.Lo
 		ids := splitQueryParam(r.URL.Query().Get("ids"))
 		names := splitQueryParam(r.URL.Query().Get("names"))
 
-		filters := []func(*faclient.ProtectionGroupSnapshot) bool{}
+		filters := []func(*flashclient.ProtectionGroupSnapshot) bool{}
 		if len(ids) > 0 {
-			filters = append(filters, fakearray.WithIDs[faclient.ProtectionGroupSnapshot](ids...))
+			filters = append(filters, fakearray.WithIDs[flashclient.ProtectionGroupSnapshot](ids...))
 		}
 		if len(names) > 0 {
-			filters = append(filters, fakearray.WithNames[faclient.ProtectionGroupSnapshot](names...))
+			filters = append(filters, fakearray.WithNames[flashclient.ProtectionGroupSnapshot](names...))
 		}
 
 		snapshots, err := array.GetProtectionGroupSnapshots(filters...)
@@ -686,14 +686,14 @@ func PatchProtectionGroupSnapshotHandler(array *fakearray.Array, logger *slog.Lo
 			return
 		}
 
-		body := faclient.ProtectionGroupSnapshotPatchBody{}
+		body := flashclient.ProtectionGroupSnapshotPatchBody{}
 		err = json.NewDecoder(r.Body).Decode(&body)
 		if err != nil {
 			httpJsonError(w, fmt.Sprintf("Invalid request body: %v", err), http.StatusBadRequest)
 			return
 		}
 
-		updatedSnapshots := []faclient.ProtectionGroupSnapshot{}
+		updatedSnapshots := []flashclient.ProtectionGroupSnapshot{}
 		for _, snapshot := range snapshots {
 			updatedSnapshot, err := array.UpdateProtectionGroupSnapshot(snapshot.Id, body)
 			if err != nil {
@@ -708,7 +708,7 @@ func PatchProtectionGroupSnapshotHandler(array *fakearray.Array, logger *slog.Lo
 		logger.DebugContext(r.Context(), "Returning updated protection group snapshots", "count", len(updatedSnapshots))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		data := faclient.NewResults(updatedSnapshots)
+		data := flashclient.NewResults(updatedSnapshots)
 		json.NewEncoder(w).Encode(data)
 	}
 }

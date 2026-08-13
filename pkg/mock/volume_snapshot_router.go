@@ -8,8 +8,8 @@ import (
 	"slices"
 
 	"github.com/gorilla/mux"
-	faclient "github.com/sanderdescamps/go-purefa"
 	"github.com/sanderdescamps/go-purefa-mock/internal/fakearray"
+	"github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
 )
 
 func InitVolumeSnapshotRouter(r *mux.Router, array *fakearray.Array, logger *slog.Logger) {
@@ -34,7 +34,7 @@ func GetVolumeSnapshotsHandler(array *fakearray.Array, logger *slog.Logger) http
 		slices.Sort(sourceIds)
 		sourceIds = slices.Compact(sourceIds)
 
-		snapshots := []faclient.VolumeSnapshot{}
+		snapshots := []flashclient.VolumeSnapshot{}
 		if ids := r.URL.Query().Get("ids"); ids != "" {
 			for _, id := range splitQueryParam(ids) {
 				snapshot, err := array.GetVolumeSnapshot(id)
@@ -66,7 +66,7 @@ func GetVolumeSnapshotsHandler(array *fakearray.Array, logger *slog.Logger) http
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		data := faclient.NewResults(snapshots)
+		data := flashclient.NewResults(snapshots)
 		json.NewEncoder(w).Encode(data)
 	}
 }
@@ -86,14 +86,14 @@ func PostVolumeSnapshotHandler(array *fakearray.Array, logger *slog.Logger) http
 		slices.Sort(sourceIds)
 		sourceIds = slices.Compact(sourceIds)
 
-		volumeSnapPost := faclient.VolumeSnapshotPostBody{}
+		volumeSnapPost := flashclient.VolumeSnapshotPostBody{}
 		err := json.NewDecoder(r.Body).Decode(&volumeSnapPost)
 		if err != nil {
 			httpJsonError(w, fmt.Sprintf("Invalid request body: %v", err), http.StatusBadRequest)
 			return
 		}
 
-		snapshots := []faclient.VolumeSnapshot{}
+		snapshots := []flashclient.VolumeSnapshot{}
 		for _, sourceId := range sourceIds {
 			snapshot, err := array.CreateVolumeSnapshot(sourceId, volumeSnapPost)
 			if err != nil {
@@ -105,7 +105,7 @@ func PostVolumeSnapshotHandler(array *fakearray.Array, logger *slog.Logger) http
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		data := faclient.NewResults(snapshots)
+		data := flashclient.NewResults(snapshots)
 		json.NewEncoder(w).Encode(data)
 	}
 }
@@ -125,14 +125,14 @@ func PatchVolumeSnapshotHandler(array *fakearray.Array, logger *slog.Logger) htt
 		slices.Sort(snapshotIds)
 		snapshotIds = slices.Compact(snapshotIds)
 
-		var volumeSnapPatch faclient.VolumeSnapshotPatchBody
+		var volumeSnapPatch flashclient.VolumeSnapshotPatchBody
 		err := json.NewDecoder(r.Body).Decode(&volumeSnapPatch)
 		if err != nil {
 			httpJsonError(w, fmt.Sprintf("Invalid request body: %v", err), http.StatusBadRequest)
 			return
 		}
 
-		snapshots := []faclient.VolumeSnapshot{}
+		snapshots := []flashclient.VolumeSnapshot{}
 		for _, snapshotId := range snapshotIds {
 			snapshot, err := array.UpdateVolumeSnapshot(snapshotId, volumeSnapPatch)
 			if err != nil {
@@ -144,7 +144,7 @@ func PatchVolumeSnapshotHandler(array *fakearray.Array, logger *slog.Logger) htt
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		data := faclient.NewResults(snapshots)
+		data := flashclient.NewResults(snapshots)
 		json.NewEncoder(w).Encode(data)
 	}
 }

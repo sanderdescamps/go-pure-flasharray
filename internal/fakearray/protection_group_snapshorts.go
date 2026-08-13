@@ -8,22 +8,22 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	faclient "github.com/sanderdescamps/go-purefa"
+	"github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
 )
 
-func ProtectionGroupSnapshotsWithSourceIds(sourceIds ...string) func(*faclient.ProtectionGroupSnapshot) bool {
-	return func(s *faclient.ProtectionGroupSnapshot) bool {
+func ProtectionGroupSnapshotsWithSourceIds(sourceIds ...string) func(*flashclient.ProtectionGroupSnapshot) bool {
+	return func(s *flashclient.ProtectionGroupSnapshot) bool {
 		return slices.Contains(sourceIds, s.Source.Id)
 	}
 }
 
-func ProtectionGroupSnapshotsWithSourceNames(names ...string) func(*faclient.ProtectionGroupSnapshot) bool {
-	return func(s *faclient.ProtectionGroupSnapshot) bool {
+func ProtectionGroupSnapshotsWithSourceNames(names ...string) func(*flashclient.ProtectionGroupSnapshot) bool {
+	return func(s *flashclient.ProtectionGroupSnapshot) bool {
 		return slices.Contains(names, s.Source.Name)
 	}
 }
 
-func (array *Array) GetProtectionGroupSnapshot(id string) (*faclient.ProtectionGroupSnapshot, error) {
+func (array *Array) GetProtectionGroupSnapshot(id string) (*flashclient.ProtectionGroupSnapshot, error) {
 	for i := range array.ProtectionGroupSnapshots {
 		if array.ProtectionGroupSnapshots[i].Id == id {
 			return array.ProtectionGroupSnapshots[i], nil
@@ -33,7 +33,7 @@ func (array *Array) GetProtectionGroupSnapshot(id string) (*faclient.ProtectionG
 }
 
 // GetProtectionGroupSnapshotByName returns the protection group snapshot with the given name.
-func (array *Array) GetProtectionGroupSnapshotByName(name string) (*faclient.ProtectionGroupSnapshot, error) {
+func (array *Array) GetProtectionGroupSnapshotByName(name string) (*flashclient.ProtectionGroupSnapshot, error) {
 	for i := range array.ProtectionGroupSnapshots {
 		if array.ProtectionGroupSnapshots[i].Name == name {
 			return array.ProtectionGroupSnapshots[i], nil
@@ -43,8 +43,8 @@ func (array *Array) GetProtectionGroupSnapshotByName(name string) (*faclient.Pro
 }
 
 // GetProtectionGroupSnapshotsForSources returns all protection group snapshots that match the given source protection group IDs.
-func (array *Array) GetProtectionGroupSnapshotsForSources(sourceIds ...string) ([]faclient.ProtectionGroupSnapshot, error) {
-	snaps := []faclient.ProtectionGroupSnapshot{}
+func (array *Array) GetProtectionGroupSnapshotsForSources(sourceIds ...string) ([]flashclient.ProtectionGroupSnapshot, error) {
+	snaps := []flashclient.ProtectionGroupSnapshot{}
 	for i := range array.ProtectionGroupSnapshots {
 		if slices.Contains(sourceIds, array.ProtectionGroupSnapshots[i].Source.Id) {
 			snaps = append(snaps, *array.ProtectionGroupSnapshots[i])
@@ -53,8 +53,8 @@ func (array *Array) GetProtectionGroupSnapshotsForSources(sourceIds ...string) (
 	return snaps, nil
 }
 
-func (array *Array) GetProtectionGroupSnapshots(filters ...func(*faclient.ProtectionGroupSnapshot) bool) ([]faclient.ProtectionGroupSnapshot, error) {
-	result := []faclient.ProtectionGroupSnapshot{}
+func (array *Array) GetProtectionGroupSnapshots(filters ...func(*flashclient.ProtectionGroupSnapshot) bool) ([]flashclient.ProtectionGroupSnapshot, error) {
+	result := []flashclient.ProtectionGroupSnapshot{}
 	for _, snapshot := range array.ProtectionGroupSnapshots {
 		include := true
 		for _, filter := range filters {
@@ -70,7 +70,7 @@ func (array *Array) GetProtectionGroupSnapshots(filters ...func(*faclient.Protec
 	return result, nil
 }
 
-func (array *Array) AddProtectionGroupSnapshot(snapshot faclient.ProtectionGroupSnapshot) (*faclient.ProtectionGroupSnapshot, error) {
+func (array *Array) AddProtectionGroupSnapshot(snapshot flashclient.ProtectionGroupSnapshot) (*flashclient.ProtectionGroupSnapshot, error) {
 	if _, err := array.GetProtectionGroupSnapshotByName(snapshot.Name); err == nil {
 		return nil, fmt.Errorf("protection group snapshot with name %s already exists: %w", snapshot.Name, ErrAlreadyExists)
 	}
@@ -81,7 +81,7 @@ func (array *Array) AddProtectionGroupSnapshot(snapshot faclient.ProtectionGroup
 	return &snapshot, nil
 }
 
-func (array *Array) CreateProtectionGroupSnapshot(sourceId string, post faclient.ProtectionGroupSnapshotPostBody) (*faclient.ProtectionGroupSnapshot, error) {
+func (array *Array) CreateProtectionGroupSnapshot(sourceId string, post flashclient.ProtectionGroupSnapshotPostBody) (*flashclient.ProtectionGroupSnapshot, error) {
 	existingSnaps, err := array.GetProtectionGroupSnapshotsForSources(sourceId)
 	if err != nil {
 		return nil, fmt.Errorf("error checking for existing protection group snapshots: %w", err)
@@ -118,14 +118,14 @@ func (array *Array) CreateProtectionGroupSnapshot(sourceId string, post faclient
 		return nil, fmt.Errorf("protection group snapshot with name %s already exists: %w", snapshotName, ErrAlreadyExists)
 	}
 
-	newSnap := faclient.ProtectionGroupSnapshot{
-		FixedReference: faclient.FixedReference{
+	newSnap := flashclient.ProtectionGroupSnapshot{
+		FixedReference: flashclient.FixedReference{
 			Name: snapshotName,
 			Id:   uuid.New().String(),
 		},
 		Context: sourcePG.Context,
 
-		Source: faclient.Source{
+		Source: flashclient.Source{
 			FixedReference: sourcePG.FixedReference,
 		},
 		Created:   time.Now().UnixMilli(),
@@ -136,7 +136,7 @@ func (array *Array) CreateProtectionGroupSnapshot(sourceId string, post faclient
 	return array.AddProtectionGroupSnapshot(newSnap)
 }
 
-func (array *Array) UpdateProtectionGroupSnapshot(id string, snapshotPatch faclient.ProtectionGroupSnapshotPatchBody) (*faclient.ProtectionGroupSnapshot, error) {
+func (array *Array) UpdateProtectionGroupSnapshot(id string, snapshotPatch flashclient.ProtectionGroupSnapshotPatchBody) (*flashclient.ProtectionGroupSnapshot, error) {
 	for i := range array.ProtectionGroupSnapshots {
 		if array.ProtectionGroupSnapshots[i].Id == id {
 			if snapshotPatch.Name != nil {
@@ -158,7 +158,7 @@ func (array *Array) UpdateProtectionGroupSnapshot(id string, snapshotPatch facli
 }
 
 func (array *Array) DestroyProtectionGroupSnapshot(id string) error {
-	_, err := array.UpdateProtectionGroupSnapshot(id, faclient.ProtectionGroupSnapshotPatchBody{Destroyed: toPtr(true)})
+	_, err := array.UpdateProtectionGroupSnapshot(id, flashclient.ProtectionGroupSnapshotPatchBody{Destroyed: toPtr(true)})
 	return err
 }
 

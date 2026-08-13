@@ -3,7 +3,7 @@ package fakearray
 import "slices"
 
 // WithID returns a filter that matches elements by their FixedReference ID.
-// T must embed faclient.FixedReference (or otherwise expose GetId via a pointer receiver).
+// T must embed flashclient.FixedReference (or otherwise expose GetId via a pointer receiver).
 func WithIDs[T any, PT interface {
 	*T
 	GetId() string
@@ -14,7 +14,7 @@ func WithIDs[T any, PT interface {
 }
 
 // WithNames returns a filter that matches elements by their FixedReference name.
-// T must embed faclient.FixedReference or faclient.NoIdReference (or otherwise expose GetName via a pointer receiver).
+// T must embed flashclient.FixedReference or flashclient.NoIdReference (or otherwise expose GetName via a pointer receiver).
 func WithNames[T any, PT interface {
 	*T
 	GetName() string

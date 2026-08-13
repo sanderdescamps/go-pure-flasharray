@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	faclient "github.com/sanderdescamps/go-purefa"
+	"github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
 )
 
 const (
@@ -19,8 +19,8 @@ var (
 	ErrAlreadyExists = fmt.Errorf("already exists")
 )
 
-func NewVolumeFromPost(name string, volumePost faclient.VolumePost) faclient.Volume {
-	priorityAdjustment := faclient.NewPriorityAdjustmentDefault()
+func NewVolumeFromPost(name string, volumePost flashclient.VolumePost) flashclient.Volume {
+	priorityAdjustment := flashclient.NewPriorityAdjustmentDefault()
 	if volumePost.PriorityAdjustment != nil {
 		priorityAdjustment = *volumePost.PriorityAdjustment
 	}
@@ -30,7 +30,7 @@ func NewVolumeFromPost(name string, volumePost faclient.VolumePost) faclient.Vol
 		destroyed = *volumePost.Destroyed
 	}
 
-	qos := faclient.NewQosDefault()
+	qos := flashclient.NewQosDefault()
 	if volumePost.QoS != nil {
 		qos = *volumePost.QoS
 	}
@@ -40,9 +40,9 @@ func NewVolumeFromPost(name string, volumePost faclient.VolumePost) faclient.Vol
 		provisioned = volumePost.Provisioned
 	}
 
-	newVolume := faclient.Volume{
-		VolumeShort: faclient.VolumeShort{
-			FixedReference: faclient.FixedReference{
+	newVolume := flashclient.Volume{
+		VolumeShort: flashclient.VolumeShort{
+			FixedReference: flashclient.FixedReference{
 				Id:   uuid.New().String(),
 				Name: name,
 			},
@@ -55,7 +55,7 @@ func NewVolumeFromPost(name string, volumePost faclient.VolumePost) faclient.Vol
 		Provisioned:             provisioned,
 		QoS:                     qos,
 		Serial:                  NewVolumeSerial(),
-		Space:                   faclient.Space{},
+		Space:                   flashclient.Space{},
 		TimeRemaining:           0,
 		Pod:                     nil,
 		Source:                  nil,
@@ -82,7 +82,7 @@ func NewVolumeSerial() string {
 	return string(b)
 }
 
-func (array *Array) GetVolume(id string) (*faclient.Volume, error) {
+func (array *Array) GetVolume(id string) (*flashclient.Volume, error) {
 	for i := range array.Volumes {
 		if array.Volumes[i].Id == id {
 			return array.Volumes[i], nil
@@ -91,17 +91,17 @@ func (array *Array) GetVolume(id string) (*faclient.Volume, error) {
 	return nil, fmt.Errorf("volume with ID %s not found", id)
 }
 
-func (array *Array) GetVolumeByName(name string) (faclient.Volume, error) {
+func (array *Array) GetVolumeByName(name string) (flashclient.Volume, error) {
 	for i := range array.Volumes {
 		if array.Volumes[i].Name == name {
 			return *array.Volumes[i], nil
 		}
 	}
-	return faclient.Volume{}, fmt.Errorf("volume with name %s not found", name)
+	return flashclient.Volume{}, fmt.Errorf("volume with name %s not found", name)
 }
 
-func (array *Array) GetVolumes() []faclient.Volume {
-	result := make([]faclient.Volume, 0, len(array.Volumes))
+func (array *Array) GetVolumes() []flashclient.Volume {
+	result := make([]flashclient.Volume, 0, len(array.Volumes))
 	for _, volume := range array.Volumes {
 		result = append(result, *volume)
 	}
@@ -109,7 +109,7 @@ func (array *Array) GetVolumes() []faclient.Volume {
 	// return slices.Collect(maps.Values(array.Volumes)) --- IGNORE ---
 }
 
-func (array *Array) AddVolume(volume faclient.Volume) (*faclient.Volume, error) {
+func (array *Array) AddVolume(volume flashclient.Volume) (*flashclient.Volume, error) {
 	if _, err := array.GetVolumeByName(volume.Name); err == nil {
 		return nil, fmt.Errorf("volume with name %s already exists: %w", volume.Name, ErrAlreadyExists)
 	}
@@ -120,7 +120,7 @@ func (array *Array) AddVolume(volume faclient.Volume) (*faclient.Volume, error) 
 	return &volume, nil
 }
 
-func (array *Array) UpdateVolume(id string, volumePatch faclient.VolumePatch) (*faclient.Volume, error) {
+func (array *Array) UpdateVolume(id string, volumePatch flashclient.VolumePatch) (*flashclient.Volume, error) {
 	for i := range array.Volumes {
 		if array.Volumes[i].Id == id {
 			if volumePatch.Name != nil {

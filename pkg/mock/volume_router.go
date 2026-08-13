@@ -9,8 +9,8 @@ import (
 	"slices"
 
 	"github.com/gorilla/mux"
-	faclient "github.com/sanderdescamps/go-purefa"
 	"github.com/sanderdescamps/go-purefa-mock/internal/fakearray"
+	"github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
 )
 
 func InitVolumeRouter(r *mux.Router, array *fakearray.Array, logger *slog.Logger) {
@@ -23,7 +23,7 @@ func InitVolumeRouter(r *mux.Router, array *fakearray.Array, logger *slog.Logger
 
 func GetVolumesHandler(array *fakearray.Array, logger *slog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		volumes := []faclient.Volume{}
+		volumes := []flashclient.Volume{}
 		if ids := r.URL.Query().Get("ids"); ids != "" {
 			for _, id := range splitQueryParam(ids) {
 				volume, err := array.GetVolume(id)
@@ -55,14 +55,14 @@ func GetVolumesHandler(array *fakearray.Array, logger *slog.Logger) http.Handler
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 
-		data := faclient.NewResults(volumes)
+		data := flashclient.NewResults(volumes)
 		json.NewEncoder(w).Encode(data)
 	}
 }
 
 func PatchVolumeHandler(array *fakearray.Array, logger *slog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		volumes := []faclient.Volume{}
+		volumes := []flashclient.Volume{}
 		if ids := r.URL.Query().Get("ids"); ids != "" {
 			for _, id := range splitQueryParam(ids) {
 				volume, err := array.GetVolume(id)
@@ -89,7 +89,7 @@ func PatchVolumeHandler(array *fakearray.Array, logger *slog.Logger) http.Handle
 			httpJsonError(w, "Missing 'ids' query parameter or 'names' query parameter", http.StatusBadRequest)
 		}
 
-		var volumePatch faclient.VolumePatch
+		var volumePatch flashclient.VolumePatch
 		err := json.NewDecoder(r.Body).Decode(&volumePatch)
 		if err != nil {
 			httpJsonError(w, fmt.Sprintf("Invalid request body: %v", err), http.StatusBadRequest)
@@ -101,7 +101,7 @@ func PatchVolumeHandler(array *fakearray.Array, logger *slog.Logger) http.Handle
 			return
 		}
 
-		updatedVolumes := []faclient.Volume{}
+		updatedVolumes := []flashclient.Volume{}
 		for i := range volumes {
 			updated, err := array.UpdateVolume(volumes[i].Id, volumePatch)
 			if err != nil {
@@ -113,7 +113,7 @@ func PatchVolumeHandler(array *fakearray.Array, logger *slog.Logger) http.Handle
 			updatedVolumes = append(updatedVolumes, *updated)
 		}
 		w.Header().Set("Content-Type", "application/json")
-		body := faclient.NewResults(updatedVolumes)
+		body := flashclient.NewResults(updatedVolumes)
 		json.NewEncoder(w).Encode(body)
 	}
 }
@@ -144,7 +144,7 @@ func PostVolumeHandler(array *fakearray.Array, logger *slog.Logger) http.Handler
 		slices.Sort(addToPromotionGroupIds)
 		addToPromotionGroupIds = slices.Compact(addToPromotionGroupIds)
 
-		var volumePost faclient.VolumePost
+		var volumePost flashclient.VolumePost
 		err := json.NewDecoder(r.Body).Decode(&volumePost)
 		if err != nil {
 			logger.ErrorContext(r.Context(), "Failed to decode request body", "error", err)
@@ -152,7 +152,7 @@ func PostVolumeHandler(array *fakearray.Array, logger *slog.Logger) http.Handler
 			return
 		}
 
-		volumes := []faclient.Volume{}
+		volumes := []flashclient.Volume{}
 		for _, name := range volumeNames {
 			newVolume := fakearray.NewVolumeFromPost(name, volumePost)
 			volume, err := array.AddVolume(newVolume)
@@ -166,7 +166,7 @@ func PostVolumeHandler(array *fakearray.Array, logger *slog.Logger) http.Handler
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		result := faclient.NewResults(volumes)
+		result := flashclient.NewResults(volumes)
 		json.NewEncoder(w).Encode(result)
 	}
 }

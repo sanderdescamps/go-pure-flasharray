@@ -9,12 +9,12 @@ import (
 	"path/filepath"
 	"strings"
 
-	faclient "github.com/sanderdescamps/go-purefa"
+	"github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
 )
 
 var ErrExportOnInvalidPath = errors.New("export on invalid path")
 
-func allExporters(client *faclient.FAClient) []SaveFunc {
+func allExporters(client *flashclient.FAClient) []SaveFunc {
 	var exporters []SaveFunc
 	exporters = append(exporters, ApiPathExporterFunc(client, "/active-directory", "active_directory.json"))
 	exporters = append(exporters, ApiPathExporterFunc(client, "/admins", "admins.json"))
@@ -248,7 +248,7 @@ func allExporters(client *faclient.FAClient) []SaveFunc {
 	return exporters
 }
 
-func ApiPathExporterFunc(client *faclient.FAClient, apiPath string, fileName string) SaveFunc {
+func ApiPathExporterFunc(client *flashclient.FAClient, apiPath string, fileName string) SaveFunc {
 	if !strings.HasSuffix(fileName, ".json") {
 		fileName += ".json"
 	}
@@ -278,7 +278,7 @@ func ApiPathExporterFunc(client *faclient.FAClient, apiPath string, fileName str
 	}
 }
 
-func ExportArrayToDir(client *faclient.FAClient, dirPath string) error {
+func ExportArrayToDir(client *flashclient.FAClient, dirPath string) error {
 	if err := os.MkdirAll(dirPath, 0755); err != nil {
 		return fmt.Errorf("create output directory %s: %w", dirPath, err)
 	}

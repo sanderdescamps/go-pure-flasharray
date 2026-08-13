@@ -4,17 +4,17 @@ import (
 	"fmt"
 	"slices"
 
-	faclient "github.com/sanderdescamps/go-purefa"
+	"github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
 )
 
-func NewHostPost(name string, hostPost faclient.HostPostBody) faclient.Host {
-	newHost := faclient.Host{
-		HostShort: faclient.HostShort{
-			NoIdReference: faclient.NoIdReference{
+func NewHostPost(name string, hostPost flashclient.HostPostBody) flashclient.Host {
+	newHost := flashclient.Host{
+		HostShort: flashclient.HostShort{
+			NoIdReference: flashclient.NoIdReference{
 				Name: name,
 			},
 		},
-		Personality: faclient.None,
+		Personality: flashclient.None,
 		IQNs:        hostPost.IQNs,
 		NQNs:        hostPost.NQNs,
 		WWNs:        hostPost.WWNs,
@@ -36,8 +36,8 @@ func NewHostPost(name string, hostPost faclient.HostPostBody) faclient.Host {
 	return newHost
 }
 
-func (array *Array) GetHosts() []faclient.Host {
-	hosts := make([]faclient.Host, len(array.Hosts))
+func (array *Array) GetHosts() []flashclient.Host {
+	hosts := make([]flashclient.Host, len(array.Hosts))
 	for i, host := range array.Hosts {
 		hosts[i] = *host
 	}
@@ -45,7 +45,7 @@ func (array *Array) GetHosts() []faclient.Host {
 	return hosts
 }
 
-func (array *Array) GetHost(name string) (*faclient.Host, error) {
+func (array *Array) GetHost(name string) (*flashclient.Host, error) {
 	for _, host := range array.Hosts {
 		if host.Name == name {
 			return host, nil
@@ -54,7 +54,7 @@ func (array *Array) GetHost(name string) (*faclient.Host, error) {
 	return nil, fmt.Errorf("host with name %s not found", name)
 }
 
-func (array *Array) AddHost(host faclient.Host) (*faclient.Host, error) {
+func (array *Array) AddHost(host flashclient.Host) (*flashclient.Host, error) {
 	for _, h := range array.Hosts {
 		if h.Name == host.Name {
 			return nil, fmt.Errorf("host with name %s already exists", host.Name)
@@ -64,7 +64,7 @@ func (array *Array) AddHost(host faclient.Host) (*faclient.Host, error) {
 	return &host, nil
 }
 
-func (array *Array) UpdateHost(name string, hostPatch faclient.HostPatchBody) (*faclient.Host, error) {
+func (array *Array) UpdateHost(name string, hostPatch flashclient.HostPatchBody) (*flashclient.Host, error) {
 	for i := range array.Hosts {
 		if array.Hosts[i].Name == name {
 			if hostPatch.Name != nil && *hostPatch.Name != "" {

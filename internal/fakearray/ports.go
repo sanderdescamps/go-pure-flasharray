@@ -1,9 +1,9 @@
 package fakearray
 
-import faclient "github.com/sanderdescamps/go-purefa"
+import "github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
 
-func (array *Array) GetPorts(filters ...func(*faclient.Port) bool) []faclient.Port {
-	ports := []faclient.Port{}
+func (array *Array) GetPorts(filters ...func(*flashclient.Port) bool) []flashclient.Port {
+	ports := []flashclient.Port{}
 	for _, port := range array.Ports {
 		matches := true
 		for _, filter := range filters {

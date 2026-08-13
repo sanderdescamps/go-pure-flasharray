@@ -3,11 +3,11 @@ package fakearray
 import (
 	"fmt"
 
-	faclient "github.com/sanderdescamps/go-purefa"
+	"github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
 )
 
-func (array *Array) GetNetworkInterfaces(filters ...func(*faclient.NetworkInterface) bool) []faclient.NetworkInterface {
-	networkInterfaces := []faclient.NetworkInterface{}
+func (array *Array) GetNetworkInterfaces(filters ...func(*flashclient.NetworkInterface) bool) []flashclient.NetworkInterface {
+	networkInterfaces := []flashclient.NetworkInterface{}
 	for _, ni := range array.NetworkInterfaces {
 		matches := true
 		for _, filter := range filters {
@@ -23,7 +23,7 @@ func (array *Array) GetNetworkInterfaces(filters ...func(*faclient.NetworkInterf
 	return networkInterfaces
 }
 
-func (array *Array) GetNetworkInterface(name string) (*faclient.NetworkInterface, error) {
+func (array *Array) GetNetworkInterface(name string) (*flashclient.NetworkInterface, error) {
 	for _, ni := range array.NetworkInterfaces {
 		if ni.Name == name {
 			return ni, nil

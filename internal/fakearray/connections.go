@@ -3,23 +3,23 @@ package fakearray
 import (
 	"slices"
 
-	faclient "github.com/sanderdescamps/go-purefa"
+	"github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
 )
 
-func ConnectionsWithHostGroupNames(hostGroupNames ...string) func(*faclient.Connection) bool {
-	return func(c *faclient.Connection) bool {
+func ConnectionsWithHostGroupNames(hostGroupNames ...string) func(*flashclient.Connection) bool {
+	return func(c *flashclient.Connection) bool {
 		return slices.Contains(hostGroupNames, c.HostGroup.Name)
 	}
 }
 
-func ConnectionsWithHostNames(hostNames ...string) func(*faclient.Connection) bool {
-	return func(c *faclient.Connection) bool {
+func ConnectionsWithHostNames(hostNames ...string) func(*flashclient.Connection) bool {
+	return func(c *flashclient.Connection) bool {
 		return slices.Contains(hostNames, c.Host.Name)
 	}
 }
 
-func ConnectionsWithVolumeIds(volumeIds ...string) func(*faclient.Connection) bool {
-	return func(c *faclient.Connection) bool {
+func ConnectionsWithVolumeIds(volumeIds ...string) func(*flashclient.Connection) bool {
+	return func(c *flashclient.Connection) bool {
 		return slices.Contains(volumeIds, c.Volume.Id)
 	}
 }
@@ -53,8 +53,8 @@ func (array *Array) nextAvailableLun(hostName string) *int64 {
 	return nil
 }
 
-func (array *Array) GetConnections() []faclient.Connection {
-	connections := make([]faclient.Connection, len(array.Connections))
+func (array *Array) GetConnections() []flashclient.Connection {
+	connections := make([]flashclient.Connection, len(array.Connections))
 	for i, connection := range array.Connections {
 		connections[i] = *connection
 	}
@@ -62,7 +62,7 @@ func (array *Array) GetConnections() []faclient.Connection {
 	return connections
 }
 
-func (array *Array) AddConnection(connection faclient.Connection) (*faclient.Connection, error) {
+func (array *Array) AddConnection(connection flashclient.Connection) (*flashclient.Connection, error) {
 	if array.ConnectionExists(connection.Host.Name, connection.Volume.Id) {
 		return nil, ErrAlreadyExists
 	}
@@ -80,8 +80,8 @@ func (array *Array) ConnectionExists(hostName string, volumeId string) bool {
 	return false
 }
 
-func (array *Array) GetConnectionsWithFilter(filter ...func(*faclient.Connection) bool) []*faclient.Connection {
-	var filteredConnections []*faclient.Connection
+func (array *Array) GetConnectionsWithFilter(filter ...func(*flashclient.Connection) bool) []*flashclient.Connection {
+	var filteredConnections []*flashclient.Connection
 	for _, connection := range array.Connections {
 		matches := true
 		for _, f := range filter {
@@ -97,7 +97,7 @@ func (array *Array) GetConnectionsWithFilter(filter ...func(*faclient.Connection
 	return filteredConnections
 }
 
-func (array *Array) CreateConnection(hostName string, volumeId string, post faclient.ConnectionPostBody) (*faclient.Connection, error) {
+func (array *Array) CreateConnection(hostName string, volumeId string, post flashclient.ConnectionPostBody) (*flashclient.Connection, error) {
 	host, err := array.GetHost(hostName)
 	if err != nil {
 		return nil, err
@@ -115,7 +115,7 @@ func (array *Array) CreateConnection(hostName string, volumeId string, post facl
 		lun = array.nextAvailableLun(hostName)
 	}
 
-	connection := faclient.Connection{
+	connection := flashclient.Connection{
 		Host:      host.HostShort,
 		Volume:    volume.VolumeShort,
 		HostGroup: host.HostGroup,

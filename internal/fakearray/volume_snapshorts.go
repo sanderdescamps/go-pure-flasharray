@@ -8,10 +8,10 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	faclient "github.com/sanderdescamps/go-purefa"
+	"github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
 )
 
-func (array *Array) GetVolumeSnapshot(id string) (*faclient.VolumeSnapshot, error) {
+func (array *Array) GetVolumeSnapshot(id string) (*flashclient.VolumeSnapshot, error) {
 	for i := range array.VolumeSnapshots {
 		if array.VolumeSnapshots[i].Id == id {
 			return array.VolumeSnapshots[i], nil
@@ -21,7 +21,7 @@ func (array *Array) GetVolumeSnapshot(id string) (*faclient.VolumeSnapshot, erro
 }
 
 // GetVolumeSnapshotByName returns the volume snapshot with the given name.
-func (array *Array) GetVolumeSnapshotByName(name string) (*faclient.VolumeSnapshot, error) {
+func (array *Array) GetVolumeSnapshotByName(name string) (*flashclient.VolumeSnapshot, error) {
 	for i := range array.VolumeSnapshots {
 		if array.VolumeSnapshots[i].Name == name {
 			return array.VolumeSnapshots[i], nil
@@ -31,8 +31,8 @@ func (array *Array) GetVolumeSnapshotByName(name string) (*faclient.VolumeSnapsh
 }
 
 // GetVolumeSnapshotsForSources returns all volume snapshots that match the given source volume names.
-func (array *Array) GetVolumeSnapshotsForSources(sourceIds ...string) ([]faclient.VolumeSnapshot, error) {
-	snaps := []faclient.VolumeSnapshot{}
+func (array *Array) GetVolumeSnapshotsForSources(sourceIds ...string) ([]flashclient.VolumeSnapshot, error) {
+	snaps := []flashclient.VolumeSnapshot{}
 	for i := range array.VolumeSnapshots {
 		if slices.Contains(sourceIds, array.VolumeSnapshots[i].Source.Id) {
 			snaps = append(snaps, *array.VolumeSnapshots[i])
@@ -41,15 +41,15 @@ func (array *Array) GetVolumeSnapshotsForSources(sourceIds ...string) ([]faclien
 	return snaps, nil
 }
 
-func (array *Array) GetVolumeSnapshots() []faclient.VolumeSnapshot {
-	result := make([]faclient.VolumeSnapshot, 0, len(array.VolumeSnapshots))
+func (array *Array) GetVolumeSnapshots() []flashclient.VolumeSnapshot {
+	result := make([]flashclient.VolumeSnapshot, 0, len(array.VolumeSnapshots))
 	for _, snapshot := range array.VolumeSnapshots {
 		result = append(result, *snapshot)
 	}
 	return result
 }
 
-func (array *Array) AddVolumeSnapshot(volume faclient.VolumeSnapshot) (*faclient.VolumeSnapshot, error) {
+func (array *Array) AddVolumeSnapshot(volume flashclient.VolumeSnapshot) (*flashclient.VolumeSnapshot, error) {
 	if _, err := array.GetVolumeSnapshotByName(volume.Name); err == nil {
 		return nil, fmt.Errorf("volume snapshot with name %s already exists: %w", volume.Name, ErrAlreadyExists)
 	}
@@ -60,7 +60,7 @@ func (array *Array) AddVolumeSnapshot(volume faclient.VolumeSnapshot) (*faclient
 	return &volume, nil
 }
 
-func (array *Array) CreateVolumeSnapshot(sourceId string, post faclient.VolumeSnapshotPostBody) (*faclient.VolumeSnapshot, error) {
+func (array *Array) CreateVolumeSnapshot(sourceId string, post flashclient.VolumeSnapshotPostBody) (*flashclient.VolumeSnapshot, error) {
 	existingSnaps, err := array.GetVolumeSnapshotsForSources(sourceId)
 	if err != nil {
 		return nil, fmt.Errorf("error checking for existing volume snapshots: %w", err)
@@ -97,10 +97,10 @@ func (array *Array) CreateVolumeSnapshot(sourceId string, post faclient.VolumeSn
 		return nil, fmt.Errorf("volume snapshot with name %s already exists: %w", snapshotName, ErrAlreadyExists)
 	}
 
-	newSnap := faclient.VolumeSnapshot{
+	newSnap := flashclient.VolumeSnapshot{
 		Name: snapshotName,
 		Id:   uuid.New().String(),
-		Source: faclient.Source{
+		Source: flashclient.Source{
 			FixedReference: sourceVolume.FixedReference,
 		},
 		Created:   time.Now().UnixMilli(),
@@ -115,7 +115,7 @@ func (array *Array) CreateVolumeSnapshot(sourceId string, post faclient.VolumeSn
 	return array.AddVolumeSnapshot(newSnap)
 }
 
-func (array *Array) UpdateVolumeSnapshot(id string, volumePatch faclient.VolumeSnapshotPatchBody) (*faclient.VolumeSnapshot, error) {
+func (array *Array) UpdateVolumeSnapshot(id string, volumePatch flashclient.VolumeSnapshotPatchBody) (*flashclient.VolumeSnapshot, error) {
 	for i := range array.VolumeSnapshots {
 		if array.VolumeSnapshots[i].Id == id {
 			if volumePatch.Name != nil {
@@ -133,7 +133,7 @@ func (array *Array) UpdateVolumeSnapshot(id string, volumePatch faclient.VolumeS
 }
 
 func (array *Array) DeleteVolumeSnapshot(id string) error {
-	_, err := array.UpdateVolumeSnapshot(id, faclient.VolumeSnapshotPatchBody{Destroyed: toPtr(true)})
+	_, err := array.UpdateVolumeSnapshot(id, flashclient.VolumeSnapshotPatchBody{Destroyed: toPtr(true)})
 	return err
 }
 

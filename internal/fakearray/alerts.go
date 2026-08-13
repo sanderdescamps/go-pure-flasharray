@@ -1,15 +1,17 @@
 package fakearray
 
-import faclient "github.com/sanderdescamps/go-purefa"
+import (
+	"github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
+)
 
-func AlertsWithFlagged(flagged bool) func(*faclient.Alert) bool {
-	return func(a *faclient.Alert) bool {
+func AlertsWithFlagged(flagged bool) func(*flashclient.Alert) bool {
+	return func(a *flashclient.Alert) bool {
 		return a.Flagged == flagged
 	}
 }
 
-func (array *Array) GetAlerts(filters ...func(*faclient.Alert) bool) ([]faclient.Alert, error) {
-	alerts := []faclient.Alert{}
+func (array *Array) GetAlerts(filters ...func(*flashclient.Alert) bool) ([]flashclient.Alert, error) {
+	alerts := []flashclient.Alert{}
 	for _, alert := range array.Alerts {
 		matches := true
 		for _, filter := range filters {

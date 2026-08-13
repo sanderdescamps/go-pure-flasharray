@@ -7,8 +7,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	faclient "github.com/sanderdescamps/go-purefa"
 	"github.com/sanderdescamps/go-purefa-mock/internal/fakearray"
+	"github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
 )
 
 func InitPodRouter(r *mux.Router, array *fakearray.Array, logger *slog.Logger) {
@@ -20,7 +20,7 @@ func InitPodRouter(r *mux.Router, array *fakearray.Array, logger *slog.Logger) {
 
 func GetPodsHandler(array *fakearray.Array, logger *slog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		pods := []faclient.Pod{}
+		pods := []flashclient.Pod{}
 		if ids := r.URL.Query().Get("ids"); ids != "" {
 			for _, id := range splitQueryParam(ids) {
 				pod, err := array.GetPod(id)
@@ -50,7 +50,7 @@ func GetPodsHandler(array *fakearray.Array, logger *slog.Logger) http.HandlerFun
 
 		logger.DebugContext(r.Context(), "Returning pods", "count", len(pods))
 		w.Header().Set("Content-Type", "application/json")
-		data := faclient.NewResults(pods)
+		data := flashclient.NewResults(pods)
 		json.NewEncoder(w).Encode(data)
 	}
 }
@@ -63,14 +63,14 @@ func PostPodHandler(array *fakearray.Array, logger *slog.Logger) http.HandlerFun
 			return
 		}
 
-		podPost := faclient.PodPostBody{}
+		podPost := flashclient.PodPostBody{}
 		err := json.NewDecoder(r.Body).Decode(&podPost)
 		if err != nil {
 			httpJsonError(w, fmt.Sprintf("Invalid request body: %v", err), http.StatusBadRequest)
 			return
 		}
 
-		podsCreated := []faclient.Pod{}
+		podsCreated := []flashclient.Pod{}
 		for _, name := range podNames {
 			pod, err := array.CreatePod(name, podPost)
 			if err != nil {
@@ -82,7 +82,7 @@ func PostPodHandler(array *fakearray.Array, logger *slog.Logger) http.HandlerFun
 			podsCreated = append(podsCreated, *pod)
 		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(faclient.NewResults(podsCreated))
+		json.NewEncoder(w).Encode(flashclient.NewResults(podsCreated))
 	}
 }
 
@@ -116,7 +116,7 @@ func PatchPodHandler(array *fakearray.Array, logger *slog.Logger) http.HandlerFu
 			return
 		}
 
-		var podPatch faclient.PodPatchBody
+		var podPatch flashclient.PodPatchBody
 		err := json.NewDecoder(r.Body).Decode(&podPatch)
 		if err != nil {
 			httpJsonError(w, fmt.Sprintf("Invalid request body: %v", err), http.StatusBadRequest)
@@ -128,7 +128,7 @@ func PatchPodHandler(array *fakearray.Array, logger *slog.Logger) http.HandlerFu
 			return
 		}
 
-		pods := []faclient.Pod{}
+		pods := []flashclient.Pod{}
 		for _, id := range podIds {
 			pod, err := array.UpdatePod(id, podPatch)
 			if err != nil {
@@ -141,7 +141,7 @@ func PatchPodHandler(array *fakearray.Array, logger *slog.Logger) http.HandlerFu
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(faclient.NewResults(pods))
+		json.NewEncoder(w).Encode(flashclient.NewResults(pods))
 	}
 }
 

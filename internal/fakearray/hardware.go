@@ -1,9 +1,9 @@
 package fakearray
 
-import faclient "github.com/sanderdescamps/go-purefa"
+import "github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
 
-func (array *Array) GetHardware(filters ...func(*faclient.Hardware) bool) []faclient.Hardware {
-	hardware := []faclient.Hardware{}
+func (array *Array) GetHardware(filters ...func(*flashclient.Hardware) bool) []flashclient.Hardware {
+	hardware := []flashclient.Hardware{}
 	for _, hw := range array.Hardware {
 		matches := true
 		for _, filter := range filters {

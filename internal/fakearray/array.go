@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	faclient "github.com/sanderdescamps/go-purefa"
+	"github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
 	"github.com/sanderdescamps/go-purefa-mock/pkg/testdata"
 )
 
@@ -22,27 +22,27 @@ var (
 )
 
 type Array struct {
-	Versions faclient.ApiVersions
+	Versions flashclient.ApiVersions
 
-	Alerts                           []*faclient.Alert
-	Arrays                           []*faclient.Array
-	Controllers                      []*faclient.Controller
-	Connections                      []*faclient.Connection
-	Drives                           []*faclient.Drive
-	Hardware                         []*faclient.Hardware
-	Hosts                            []*faclient.Host
-	HostGroups                       []*faclient.HostGroup
-	NetworkInterfaces                []*faclient.NetworkInterface
-	Pods                             []*faclient.Pod
-	Ports                            []*faclient.Port
-	ProtectionGroups                 []*faclient.ProtectionGroup
-	ProtectionGroupsHostMembers      []*faclient.ProtectionGroupHostMember
-	ProtectionGroupsHostGroupMembers []*faclient.ProtectionGroupHostGroupMember
-	ProtectionGroupsVolumeMembers    []*faclient.ProtectionGroupVolumeMember
-	ProtectionGroupSnapshots         []*faclient.ProtectionGroupSnapshot
-	Volumes                          []*faclient.Volume
-	VolumeGroups                     []*faclient.VolumeGroup
-	VolumeSnapshots                  []*faclient.VolumeSnapshot
+	Alerts                           []*flashclient.Alert
+	Arrays                           []*flashclient.Array
+	Controllers                      []*flashclient.Controller
+	Connections                      []*flashclient.Connection
+	Drives                           []*flashclient.Drive
+	Hardware                         []*flashclient.Hardware
+	Hosts                            []*flashclient.Host
+	HostGroups                       []*flashclient.HostGroup
+	NetworkInterfaces                []*flashclient.NetworkInterface
+	Pods                             []*flashclient.Pod
+	Ports                            []*flashclient.Port
+	ProtectionGroups                 []*flashclient.ProtectionGroup
+	ProtectionGroupsHostMembers      []*flashclient.ProtectionGroupHostMember
+	ProtectionGroupsHostGroupMembers []*flashclient.ProtectionGroupHostGroupMember
+	ProtectionGroupsVolumeMembers    []*flashclient.ProtectionGroupVolumeMember
+	ProtectionGroupSnapshots         []*flashclient.ProtectionGroupSnapshot
+	Volumes                          []*flashclient.Volume
+	VolumeGroups                     []*flashclient.VolumeGroup
+	VolumeSnapshots                  []*flashclient.VolumeSnapshot
 
 	logger *slog.Logger
 }
@@ -58,23 +58,23 @@ func WithLogger(logger *slog.Logger) ArrayOption {
 func NewArray(arrayOptions ...ArrayOption) *Array {
 	array := &Array{
 		Versions:                         []string{"1.0", "1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7", "1.8", "1.9", "1.10", "1.11", "1.12", "1.13", "1.14", "1.15", "1.16", "1.17", "1.18", "1.19", "2.0", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6", "2.7", "2.8", "2.9", "2.10", "2.11", "2.13", "2.14", "2.15", "2.16", "2.17", "2.19", "2.20", "2.21", "2.22", "2.23", "2.24", "2.25", "2.26", "2.27", "2.28", "2.29", "2.30", "2.31", "2.32", "2.33", "2.34", "2.35", "2.36", "2.37", "2.38", "2.39", "2.40", "2.41", "2.42", "2.43", "2.44", "2.45", "2.46"},
-		Alerts:                           []*faclient.Alert{},
-		Arrays:                           []*faclient.Array{},
-		Controllers:                      []*faclient.Controller{},
-		Connections:                      []*faclient.Connection{},
-		Drives:                           []*faclient.Drive{},
-		Hardware:                         []*faclient.Hardware{},
-		Hosts:                            []*faclient.Host{},
-		HostGroups:                       []*faclient.HostGroup{},
-		NetworkInterfaces:                []*faclient.NetworkInterface{},
-		ProtectionGroups:                 []*faclient.ProtectionGroup{},
-		ProtectionGroupsHostMembers:      []*faclient.ProtectionGroupHostMember{},
-		ProtectionGroupsHostGroupMembers: []*faclient.ProtectionGroupHostGroupMember{},
-		ProtectionGroupsVolumeMembers:    []*faclient.ProtectionGroupVolumeMember{},
-		Pods:                             []*faclient.Pod{},
-		Volumes:                          []*faclient.Volume{},
-		VolumeGroups:                     []*faclient.VolumeGroup{},
-		VolumeSnapshots:                  []*faclient.VolumeSnapshot{},
+		Alerts:                           []*flashclient.Alert{},
+		Arrays:                           []*flashclient.Array{},
+		Controllers:                      []*flashclient.Controller{},
+		Connections:                      []*flashclient.Connection{},
+		Drives:                           []*flashclient.Drive{},
+		Hardware:                         []*flashclient.Hardware{},
+		Hosts:                            []*flashclient.Host{},
+		HostGroups:                       []*flashclient.HostGroup{},
+		NetworkInterfaces:                []*flashclient.NetworkInterface{},
+		ProtectionGroups:                 []*flashclient.ProtectionGroup{},
+		ProtectionGroupsHostMembers:      []*flashclient.ProtectionGroupHostMember{},
+		ProtectionGroupsHostGroupMembers: []*flashclient.ProtectionGroupHostGroupMember{},
+		ProtectionGroupsVolumeMembers:    []*flashclient.ProtectionGroupVolumeMember{},
+		Pods:                             []*flashclient.Pod{},
+		Volumes:                          []*flashclient.Volume{},
+		VolumeGroups:                     []*flashclient.VolumeGroup{},
+		VolumeSnapshots:                  []*flashclient.VolumeSnapshot{},
 		logger:                           slog.Default(),
 	}
 	for _, option := range arrayOptions {
@@ -123,7 +123,7 @@ func (array *Array) LoadFromBytes(name string, results []byte) error {
 	}
 
 	if matcher("versions")(name) {
-		body := faclient.VersionsResponse{}
+		body := flashclient.VersionsResponse{}
 		err := json.Unmarshal(results, &body)
 		if err != nil {
 			return err
@@ -133,112 +133,112 @@ func (array *Array) LoadFromBytes(name string, results []byte) error {
 	}
 
 	if matcher("alerts")(name) {
-		items, err := readItemsFromResultBytes[faclient.Alert](results)
+		items, err := readItemsFromResultBytes[flashclient.Alert](results)
 		if err != nil {
 			return err
 		}
 		array.Alerts = items
 		return nil
 	} else if matcher("arrays")(name) {
-		items, err := readItemsFromResultBytes[faclient.Array](results)
+		items, err := readItemsFromResultBytes[flashclient.Array](results)
 		if err != nil {
 			return err
 		}
 		array.Arrays = items
 		return nil
 	} else if matcher("connections")(name) {
-		items, err := readItemsFromResultBytes[faclient.Connection](results)
+		items, err := readItemsFromResultBytes[flashclient.Connection](results)
 		if err != nil {
 			return err
 		}
 		array.Connections = items
 		return nil
 	} else if matcher("controllers")(name) {
-		items, err := readItemsFromResultBytes[faclient.Controller](results)
+		items, err := readItemsFromResultBytes[flashclient.Controller](results)
 		if err != nil {
 			return err
 		}
 		array.Controllers = items
 		return nil
 	} else if matcher("drives")(name) {
-		items, err := readItemsFromResultBytes[faclient.Drive](results)
+		items, err := readItemsFromResultBytes[flashclient.Drive](results)
 		if err != nil {
 			return err
 		}
 		array.Drives = items
 		return nil
 	} else if matcher("hardware")(name) {
-		items, err := readItemsFromResultBytes[faclient.Hardware](results)
+		items, err := readItemsFromResultBytes[flashclient.Hardware](results)
 		if err != nil {
 			return err
 		}
 		array.Hardware = items
 		return nil
 	} else if matcher("hosts")(name) {
-		items, err := readItemsFromResultBytes[faclient.Host](results)
+		items, err := readItemsFromResultBytes[flashclient.Host](results)
 		if err != nil {
 			return err
 		}
 		array.Hosts = items
 		return nil
 	} else if matcher("host_groups")(name) || matcher("host-groups")(name) {
-		items, err := readItemsFromResultBytes[faclient.HostGroup](results)
+		items, err := readItemsFromResultBytes[flashclient.HostGroup](results)
 		if err != nil {
 			return err
 		}
 		array.HostGroups = items
 		return nil
 	} else if matcher("network_interfaces")(name) || matcher("network-interfaces")(name) {
-		items, err := readItemsFromResultBytes[faclient.NetworkInterface](results)
+		items, err := readItemsFromResultBytes[flashclient.NetworkInterface](results)
 		if err != nil {
 			return err
 		}
 		array.NetworkInterfaces = items
 		return nil
 	} else if matcher("pods")(name) {
-		items, err := readItemsFromResultBytes[faclient.Pod](results)
+		items, err := readItemsFromResultBytes[flashclient.Pod](results)
 		if err != nil {
 			return err
 		}
 		array.Pods = items
 		return nil
 	} else if matcher("ports")(name) {
-		items, err := readItemsFromResultBytes[faclient.Port](results)
+		items, err := readItemsFromResultBytes[flashclient.Port](results)
 		if err != nil {
 			return err
 		}
 		array.Ports = items
 		return nil
 	} else if matcher("protection_groups")(name) || matcher("protection-groups")(name) {
-		items, err := readItemsFromResultBytes[faclient.ProtectionGroup](results)
+		items, err := readItemsFromResultBytes[flashclient.ProtectionGroup](results)
 		if err != nil {
 			return err
 		}
 		array.ProtectionGroups = items
 		return nil
 	} else if matcher("protection_groups_members_host")(name) || matcher("protection-groups-members-host")(name) || matcher("protection_groups_hosts")(name) || matcher("protection-groups-hosts")(name) {
-		items, err := readItemsFromResultBytes[faclient.ProtectionGroupHostMember](results)
+		items, err := readItemsFromResultBytes[flashclient.ProtectionGroupHostMember](results)
 		if err != nil {
 			return err
 		}
 		array.ProtectionGroupsHostMembers = items
 		return nil
 	} else if matcher("protection_groups_members_host_group")(name) || matcher("protection-groups-members-host-group")(name) || matcher("protection_groups_host_groups")(name) || matcher("protection-groups-host-groups")(name) {
-		items, err := readItemsFromResultBytes[faclient.ProtectionGroupHostGroupMember](results)
+		items, err := readItemsFromResultBytes[flashclient.ProtectionGroupHostGroupMember](results)
 		if err != nil {
 			return err
 		}
 		array.ProtectionGroupsHostGroupMembers = items
 		return nil
 	} else if matcher("protection_groups_members_volume")(name) || matcher("protection-groups-members-volume")(name) || matcher("protection_groups_volumes")(name) || matcher("protection-groups-volumes")(name) {
-		items, err := readItemsFromResultBytes[faclient.ProtectionGroupVolumeMember](results)
+		items, err := readItemsFromResultBytes[flashclient.ProtectionGroupVolumeMember](results)
 		if err != nil {
 			return err
 		}
 		array.ProtectionGroupsVolumeMembers = items
 		return nil
 	} else if matcher("volumes")(name) {
-		items, err := readItemsFromResultBytes[faclient.Volume](results)
+		items, err := readItemsFromResultBytes[flashclient.Volume](results)
 		if err != nil {
 			return err
 		}
@@ -253,7 +253,7 @@ func (array *Array) LoadFromBytes(name string, results []byte) error {
 		}
 		return nil
 	} else if matcher("volume_groups")(name) || matcher("volume-groups")(name) {
-		items, err := readItemsFromResultBytes[faclient.VolumeGroup](results)
+		items, err := readItemsFromResultBytes[flashclient.VolumeGroup](results)
 		if err != nil {
 			return err
 		}
@@ -273,7 +273,7 @@ func (array *Array) LoadFromBytes(name string, results []byte) error {
 }
 
 func readItemsFromResultBytes[T any](results []byte) ([]*T, error) {
-	var res faclient.Results[T]
+	var res flashclient.Results[T]
 	err := json.Unmarshal(results, &res)
 	if err != nil {
 		return nil, err
@@ -293,7 +293,7 @@ func ResourceSaveFunc[T any](fileName string, resource *[]*T) SaveFunc {
 		fileName += ".json"
 	}
 	return func(dir string) error {
-		results := faclient.NewResults(*resource)
+		results := flashclient.NewResults(*resource)
 		data, err := json.MarshalIndent(results, "", "  ")
 		if err != nil {
 			return fmt.Errorf("marshal %s: %w", fileName, err)
@@ -306,12 +306,12 @@ func ResourceSaveFunc[T any](fileName string, resource *[]*T) SaveFunc {
 	}
 }
 
-func VersionsSaveFunc(fileName string, versions faclient.ApiVersions) SaveFunc {
+func VersionsSaveFunc(fileName string, versions flashclient.ApiVersions) SaveFunc {
 	if !strings.HasSuffix(fileName, ".json") {
 		fileName += ".json"
 	}
 	return func(dir string) error {
-		body := faclient.VersionsResponse{
+		body := flashclient.VersionsResponse{
 			Versions: versions,
 		}
 		data, err := json.MarshalIndent(body, "", "  ")
@@ -404,7 +404,7 @@ func NewArrayFromDir(dir string, arrayOptions ...ArrayOption) (*Array, error) {
 	return array, nil
 }
 
-func NewArrayFromClient(client *faclient.FAClient, arrayOptions ...ArrayOption) (*Array, error) {
+func NewArrayFromClient(client *flashclient.FAClient, arrayOptions ...ArrayOption) (*Array, error) {
 
 	hosts, err := client.GetHosts()
 	if err != nil {
@@ -530,14 +530,14 @@ func (array *Array) SaveToDir(dirPath string) error {
 	return nil
 }
 
-func (array *Array) GetArrays() ([]faclient.Array, error) {
-	arrays := make([]faclient.Array, len(array.Arrays))
+func (array *Array) GetArrays() ([]flashclient.Array, error) {
+	arrays := make([]flashclient.Array, len(array.Arrays))
 	for i, arr := range array.Arrays {
 		arrays[i] = *arr
 	}
 	return arrays, nil
 }
 
-func (array *Array) GetVersions() faclient.ApiVersions {
+func (array *Array) GetVersions() flashclient.ApiVersions {
 	return array.Versions
 }

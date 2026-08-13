@@ -4,13 +4,13 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	faclient "github.com/sanderdescamps/go-purefa"
+	"github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
 )
 
-func NewPodPost(name string, podPost faclient.PodPostBody) faclient.Pod {
+func NewPodPost(name string, podPost flashclient.PodPostBody) flashclient.Pod {
 
-	newPod := faclient.Pod{
-		FixedReference: faclient.FixedReference{
+	newPod := flashclient.Pod{
+		FixedReference: flashclient.FixedReference{
 			Id:   uuid.New().String(),
 			Name: name,
 		},
@@ -30,7 +30,7 @@ func NewPodPost(name string, podPost faclient.PodPostBody) faclient.Pod {
 	return newPod
 }
 
-func (array *Array) GetPod(id string) (*faclient.Pod, error) {
+func (array *Array) GetPod(id string) (*flashclient.Pod, error) {
 	for _, pod := range array.Pods {
 		if pod.Id == id {
 			return pod, nil
@@ -39,15 +39,15 @@ func (array *Array) GetPod(id string) (*faclient.Pod, error) {
 	return nil, fmt.Errorf("pod with ID %s not found", id)
 }
 
-func (array *Array) GetPods() []faclient.Pod {
-	pods := make([]faclient.Pod, len(array.Pods))
+func (array *Array) GetPods() []flashclient.Pod {
+	pods := make([]flashclient.Pod, len(array.Pods))
 	for i, pod := range array.Pods {
 		pods[i] = *pod
 	}
 	return pods
 }
 
-func (array *Array) GetPodsByName(name string) (*faclient.Pod, error) {
+func (array *Array) GetPodsByName(name string) (*flashclient.Pod, error) {
 	for _, pod := range array.Pods {
 		if pod.Name == name {
 			return pod, nil
@@ -56,7 +56,7 @@ func (array *Array) GetPodsByName(name string) (*faclient.Pod, error) {
 	return nil, fmt.Errorf("pod with name %s not found", name)
 }
 
-func (array *Array) AddPod(pod faclient.Pod) (*faclient.Pod, error) {
+func (array *Array) AddPod(pod flashclient.Pod) (*flashclient.Pod, error) {
 	for _, p := range array.Pods {
 		if p.Name == pod.Name {
 			return nil, fmt.Errorf("pod with name %s already exists: %w", pod.Name, ErrAlreadyExists)
@@ -69,12 +69,12 @@ func (array *Array) AddPod(pod faclient.Pod) (*faclient.Pod, error) {
 	return &pod, nil
 }
 
-func (array *Array) CreatePod(name string, podPost faclient.PodPostBody) (*faclient.Pod, error) {
+func (array *Array) CreatePod(name string, podPost flashclient.PodPostBody) (*flashclient.Pod, error) {
 	newPod := NewPodPost(name, podPost)
 	return array.AddPod(newPod)
 }
 
-func (array *Array) UpdatePod(id string, patch faclient.PodPatchBody) (*faclient.Pod, error) {
+func (array *Array) UpdatePod(id string, patch flashclient.PodPatchBody) (*flashclient.Pod, error) {
 	for i, pod := range array.Pods {
 		if pod.Id == id {
 			if patch.Name != nil {
@@ -98,7 +98,7 @@ func (array *Array) UpdatePod(id string, patch faclient.PodPatchBody) (*faclient
 
 // Destroy pod
 func (array *Array) DestroyPod(id string) error {
-	_, err := array.UpdatePod(id, faclient.PodPatchBody{Destroyed: new(bool)})
+	_, err := array.UpdatePod(id, flashclient.PodPatchBody{Destroyed: new(bool)})
 	return err
 }
 

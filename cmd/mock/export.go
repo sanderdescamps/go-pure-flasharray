@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log/slog"
 
-	faclient "github.com/sanderdescamps/go-purefa"
 	"github.com/sanderdescamps/go-purefa-mock/internal/fakearray"
+	"github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
 	"github.com/spf13/cobra"
 )
 
@@ -32,7 +32,7 @@ func NewExportCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			logger := slog.New(NewCobraLogHandler(cmd.OutOrStdout(), getLogLevel()))
 			logger.Info("Set logger", "level", getLogLevel())
-			cfg := faclient.ClientConfig{
+			cfg := flashclient.ClientConfig{
 				ApiVersion: apiversion,
 				UserAgent:  "go-purefa-mock-export",
 				Insecure:   insecure,
@@ -40,7 +40,7 @@ func NewExportCommand() *cobra.Command {
 				Debug:      false,
 			}
 
-			client, err := faclient.NewRestClient(endpoint, apiToken, cfg)
+			client, err := flashclient.NewRestClient(endpoint, apiToken, cfg)
 			if err != nil {
 				return fmt.Errorf("failed to create REST client: %w", err)
 			}

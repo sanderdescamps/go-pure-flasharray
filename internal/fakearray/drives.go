@@ -1,9 +1,9 @@
 package fakearray
 
-import faclient "github.com/sanderdescamps/go-purefa"
+import "github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
 
-func (array *Array) GetDrives(filters ...func(*faclient.Drive) bool) []faclient.Drive {
-	drives := []faclient.Drive{}
+func (array *Array) GetDrives(filters ...func(*flashclient.Drive) bool) []flashclient.Drive {
+	drives := []flashclient.Drive{}
 	for _, drive := range array.Drives {
 		matches := true
 		for _, filter := range filters {

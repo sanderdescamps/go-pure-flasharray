@@ -7,8 +7,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	faclient "github.com/sanderdescamps/go-purefa"
 	"github.com/sanderdescamps/go-purefa-mock/internal/fakearray"
+	"github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
 )
 
 func InitHostGroupRouter(r *mux.Router, array *fakearray.Array, logger *slog.Logger) {
@@ -24,7 +24,7 @@ func InitHostGroupRouter(r *mux.Router, array *fakearray.Array, logger *slog.Log
 func GetHostGroupsHandler(array *fakearray.Array, logger *slog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		hostGroupNames := splitQueryParam(r.URL.Query().Get("names"))
-		hostGroups := []faclient.HostGroup{}
+		hostGroups := []flashclient.HostGroup{}
 		if len(hostGroupNames) > 0 {
 			for _, name := range hostGroupNames {
 				hostGroup, err := array.GetHostGroup(name)
@@ -44,7 +44,7 @@ func GetHostGroupsHandler(array *fakearray.Array, logger *slog.Logger) http.Hand
 		logger.DebugContext(r.Context(), "Returning host groups", "count", len(hostGroups))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		data := faclient.NewResults(hostGroups)
+		data := flashclient.NewResults(hostGroups)
 		json.NewEncoder(w).Encode(data)
 	}
 }
@@ -57,7 +57,7 @@ func PostHostGroupHandler(array *fakearray.Array, logger *slog.Logger) http.Hand
 			return
 		}
 
-		hostGroupsCreated := []faclient.HostGroup{}
+		hostGroupsCreated := []flashclient.HostGroup{}
 		for _, name := range hostGroupNames {
 			newHostGroup := fakearray.NewHostGroup(name)
 			hostGroup, err := array.AddHostGroup(*newHostGroup)
@@ -70,7 +70,7 @@ func PostHostGroupHandler(array *fakearray.Array, logger *slog.Logger) http.Hand
 			hostGroupsCreated = append(hostGroupsCreated, *hostGroup)
 		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(faclient.NewResults(hostGroupsCreated))
+		json.NewEncoder(w).Encode(flashclient.NewResults(hostGroupsCreated))
 	}
 }
 
@@ -82,7 +82,7 @@ func PatchHostGroupHandler(array *fakearray.Array, logger *slog.Logger) http.Han
 			return
 		}
 
-		var hostGroupPatch faclient.HostGroupPatchBody
+		var hostGroupPatch flashclient.HostGroupPatchBody
 		err := json.NewDecoder(r.Body).Decode(&hostGroupPatch)
 		if err != nil {
 			httpJsonError(w, fmt.Sprintf("Invalid request body: %v", err), http.StatusBadRequest)
@@ -94,7 +94,7 @@ func PatchHostGroupHandler(array *fakearray.Array, logger *slog.Logger) http.Han
 			return
 		}
 
-		hostGroups := []faclient.HostGroup{}
+		hostGroups := []flashclient.HostGroup{}
 		for _, name := range names {
 			hostGroup, err := array.UpdateHostGroup(name, hostGroupPatch)
 			if err != nil {
@@ -107,7 +107,7 @@ func PatchHostGroupHandler(array *fakearray.Array, logger *slog.Logger) http.Han
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(faclient.NewResults(hostGroups))
+		json.NewEncoder(w).Encode(flashclient.NewResults(hostGroups))
 	}
 }
 
@@ -148,7 +148,7 @@ func GetHostGroupMembersHandler(array *fakearray.Array, logger *slog.Logger) htt
 		logger.DebugContext(r.Context(), "Returning host group members", "count", len(members))
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(faclient.NewResults(members))
+		json.NewEncoder(w).Encode(flashclient.NewResults(members))
 	}
 }
 
@@ -178,7 +178,7 @@ func PostHostGroupMembersHandler(array *fakearray.Array, logger *slog.Logger) ht
 		logger.DebugContext(r.Context(), "Added host group members", "group", hostGroupNames[0], "count", len(members))
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(faclient.NewResults(members))
+		json.NewEncoder(w).Encode(flashclient.NewResults(members))
 	}
 }
 

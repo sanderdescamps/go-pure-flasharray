@@ -7,8 +7,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	faclient "github.com/sanderdescamps/go-purefa"
 	"github.com/sanderdescamps/go-purefa-mock/internal/fakearray"
+	"github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
 )
 
 func InitHostRouter(r *mux.Router, array *fakearray.Array, logger *slog.Logger) {
@@ -20,7 +20,7 @@ func InitHostRouter(r *mux.Router, array *fakearray.Array, logger *slog.Logger) 
 
 func GetHostsHandler(array *fakearray.Array, logger *slog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		hosts := []faclient.Host{}
+		hosts := []flashclient.Host{}
 		if names := r.URL.Query().Get("names"); names != "" {
 			for _, name := range splitQueryParam(names) {
 				host, err := array.GetHost(name)
@@ -39,7 +39,7 @@ func GetHostsHandler(array *fakearray.Array, logger *slog.Logger) http.HandlerFu
 
 		logger.DebugContext(r.Context(), "Returning hosts", "count", len(hosts))
 		w.Header().Set("Content-Type", "application/json")
-		data := faclient.NewResults(hosts)
+		data := flashclient.NewResults(hosts)
 		json.NewEncoder(w).Encode(data)
 	}
 }
@@ -52,14 +52,14 @@ func PostHostHandler(array *fakearray.Array, logger *slog.Logger) http.HandlerFu
 			return
 		}
 
-		var hostPost faclient.HostPostBody
+		var hostPost flashclient.HostPostBody
 		err := json.NewDecoder(r.Body).Decode(&hostPost)
 		if err != nil {
 			httpJsonError(w, fmt.Sprintf("Invalid request body: %v", err), http.StatusBadRequest)
 			return
 		}
 
-		hostsCreated := []faclient.Host{}
+		hostsCreated := []flashclient.Host{}
 		for _, name := range hostNames {
 			newHost := fakearray.NewHostPost(name, hostPost)
 			host, err := array.AddHost(newHost)
@@ -72,7 +72,7 @@ func PostHostHandler(array *fakearray.Array, logger *slog.Logger) http.HandlerFu
 			hostsCreated = append(hostsCreated, *host)
 		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(faclient.NewResults(hostsCreated))
+		json.NewEncoder(w).Encode(flashclient.NewResults(hostsCreated))
 	}
 }
 
@@ -84,7 +84,7 @@ func PatchHostHandler(array *fakearray.Array, logger *slog.Logger) http.HandlerF
 			return
 		}
 
-		var hostPatch faclient.HostPatchBody
+		var hostPatch flashclient.HostPatchBody
 		err := json.NewDecoder(r.Body).Decode(&hostPatch)
 		if err != nil {
 			httpJsonError(w, fmt.Sprintf("Invalid request body: %v", err), http.StatusBadRequest)
@@ -96,7 +96,7 @@ func PatchHostHandler(array *fakearray.Array, logger *slog.Logger) http.HandlerF
 			return
 		}
 
-		hosts := []faclient.Host{}
+		hosts := []flashclient.Host{}
 		for _, name := range names {
 			host, err := array.UpdateHost(name, hostPatch)
 			if err != nil {
@@ -109,7 +109,7 @@ func PatchHostHandler(array *fakearray.Array, logger *slog.Logger) http.HandlerF
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(faclient.NewResults(hosts))
+		json.NewEncoder(w).Encode(flashclient.NewResults(hosts))
 	}
 }
 

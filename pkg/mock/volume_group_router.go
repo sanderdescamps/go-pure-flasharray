@@ -8,8 +8,8 @@ import (
 	"slices"
 
 	"github.com/gorilla/mux"
-	faclient "github.com/sanderdescamps/go-purefa"
 	"github.com/sanderdescamps/go-purefa-mock/internal/fakearray"
+	"github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
 )
 
 func InitVolumeGroupRouter(r *mux.Router, array *fakearray.Array, logger *slog.Logger) {
@@ -22,7 +22,7 @@ func InitVolumeGroupRouter(r *mux.Router, array *fakearray.Array, logger *slog.L
 
 func GetVolumeGroupsHandler(array *fakearray.Array, logger *slog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		vgroups := []faclient.VolumeGroup{}
+		vgroups := []flashclient.VolumeGroup{}
 		if ids := r.URL.Query().Get("ids"); ids != "" {
 			for _, id := range splitQueryParam(ids) {
 				vgroup, err := array.GetVolumeGroup(id)
@@ -51,7 +51,7 @@ func GetVolumeGroupsHandler(array *fakearray.Array, logger *slog.Logger) http.Ha
 		logger.DebugContext(r.Context(), "Returning volume groups", "count", len(vgroups))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		data := faclient.NewResults(vgroups)
+		data := flashclient.NewResults(vgroups)
 		json.NewEncoder(w).Encode(data)
 	}
 }
@@ -65,14 +65,14 @@ func PostVolumeGroupHandler(array *fakearray.Array, logger *slog.Logger) http.Ha
 			return
 		}
 
-		var volumeGroupPost faclient.VolumeGroupPost
+		var volumeGroupPost flashclient.VolumeGroupPost
 		err := json.NewDecoder(r.Body).Decode(&volumeGroupPost)
 		if err != nil {
 			httpJsonError(w, fmt.Sprintf("Invalid request body: %v", err), http.StatusBadRequest)
 			return
 		}
 
-		volumeGroupResult := faclient.NewResults([]faclient.VolumeGroup{})
+		volumeGroupResult := flashclient.NewResults([]flashclient.VolumeGroup{})
 		for _, name := range volumeNames {
 			vgroup, err := array.CreateVolumeGroup(name, volumeGroupPost)
 			if err != nil {
@@ -116,7 +116,7 @@ func PatchVolumeGroupHandler(array *fakearray.Array, logger *slog.Logger) http.H
 			return
 		}
 
-		var volumeGroupPatch faclient.VolumeGroupPatch
+		var volumeGroupPatch flashclient.VolumeGroupPatch
 		err := json.NewDecoder(r.Body).Decode(&volumeGroupPatch)
 		if err != nil {
 			httpJsonError(w, fmt.Sprintf("Invalid request body: %v", err), http.StatusBadRequest)
@@ -129,7 +129,7 @@ func PatchVolumeGroupHandler(array *fakearray.Array, logger *slog.Logger) http.H
 
 		}
 
-		volumeGroups := []faclient.VolumeGroup{}
+		volumeGroups := []flashclient.VolumeGroup{}
 		for _, id := range volumeGroupIds {
 			updatedVgroup, err := array.UpdateVolumeGroup(id, volumeGroupPatch)
 			if err != nil {
@@ -140,7 +140,7 @@ func PatchVolumeGroupHandler(array *fakearray.Array, logger *slog.Logger) http.H
 			volumeGroups = append(volumeGroups, *updatedVgroup)
 		}
 		w.Header().Set("Content-Type", "application/json")
-		body := faclient.NewResults(volumeGroups)
+		body := flashclient.NewResults(volumeGroups)
 		json.NewEncoder(w).Encode(body)
 	}
 }
@@ -223,7 +223,7 @@ func GetVolumeGroupMembersHandler(array *fakearray.Array, logger *slog.Logger) h
 		logger.DebugContext(r.Context(), "Returning volume group members", "count", len(arrayMembers))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		data := faclient.NewResults(arrayMembers)
+		data := flashclient.NewResults(arrayMembers)
 		json.NewEncoder(w).Encode(data)
 	}
 }

@@ -12,9 +12,9 @@ import (
 	"time"
 
 	"github.com/sanderdescamps/go-purefa-mock/internal/fakearray"
+	"github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
 
 	"github.com/gorilla/mux"
-	faclient "github.com/sanderdescamps/go-purefa"
 )
 
 type Mock struct {
@@ -158,7 +158,7 @@ func (m *Mock) authMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func (m *Mock) versionMiddleware(supportedVersions faclient.ApiVersions) mux.MiddlewareFunc {
+func (m *Mock) versionMiddleware(supportedVersions flashclient.ApiVersions) mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			muxVars := mux.Vars(r)
@@ -240,7 +240,7 @@ func GetEmptyHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		data := faclient.NewResults[any]([]any{})
+		data := flashclient.NewResults[any]([]any{})
 		json.NewEncoder(w).Encode(data)
 	}
 }

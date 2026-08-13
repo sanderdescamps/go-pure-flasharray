@@ -5,15 +5,15 @@ import (
 	"slices"
 
 	"github.com/google/uuid"
-	faclient "github.com/sanderdescamps/go-purefa"
+	"github.com/sanderdescamps/go-purefa-mock/pkg/flashclient"
 )
 
 var ErrInvalidProtectionGroup = fmt.Errorf("invalid protection group")
 
-func NewProtectionGroupPost(name string) *faclient.ProtectionGroup {
-	return &faclient.ProtectionGroup{
-		ProtectionGroupShort: faclient.ProtectionGroupShort{
-			FixedReference: faclient.FixedReference{
+func NewProtectionGroupPost(name string) *flashclient.ProtectionGroup {
+	return &flashclient.ProtectionGroup{
+		ProtectionGroupShort: flashclient.ProtectionGroupShort{
+			FixedReference: flashclient.FixedReference{
 				Id:   uuid.New().String(),
 				Name: name,
 			},
@@ -21,7 +21,7 @@ func NewProtectionGroupPost(name string) *faclient.ProtectionGroup {
 	}
 }
 
-func (array *Array) GetProtectionGroup(id string) (*faclient.ProtectionGroup, error) {
+func (array *Array) GetProtectionGroup(id string) (*flashclient.ProtectionGroup, error) {
 	for _, pg := range array.ProtectionGroups {
 		if pg.Id == id {
 			return pg, nil
@@ -30,7 +30,7 @@ func (array *Array) GetProtectionGroup(id string) (*faclient.ProtectionGroup, er
 	return nil, fmt.Errorf("protection group with ID %s not found", id)
 }
 
-func (array *Array) GetProtectionGroupByName(name string) (*faclient.ProtectionGroup, error) {
+func (array *Array) GetProtectionGroupByName(name string) (*flashclient.ProtectionGroup, error) {
 	for _, pg := range array.ProtectionGroups {
 		if pg.Name == name {
 			return pg, nil
@@ -39,15 +39,15 @@ func (array *Array) GetProtectionGroupByName(name string) (*faclient.ProtectionG
 	return nil, fmt.Errorf("protection group with name %s not found", name)
 }
 
-func (array *Array) GetProtectionGroups() []faclient.ProtectionGroup {
-	protectionGroups := make([]faclient.ProtectionGroup, len(array.ProtectionGroups))
+func (array *Array) GetProtectionGroups() []flashclient.ProtectionGroup {
+	protectionGroups := make([]flashclient.ProtectionGroup, len(array.ProtectionGroups))
 	for i, pg := range array.ProtectionGroups {
 		protectionGroups[i] = *pg
 	}
 	return protectionGroups
 }
 
-func (array *Array) AddProtectionGroup(pg faclient.ProtectionGroup) (*faclient.ProtectionGroup, error) {
+func (array *Array) AddProtectionGroup(pg flashclient.ProtectionGroup) (*flashclient.ProtectionGroup, error) {
 	if _, err := array.GetProtectionGroupByName(pg.Name); err == nil {
 		return nil, fmt.Errorf("protection group with name %s already exists: %w", pg.Name, ErrAlreadyExists)
 	}
@@ -58,7 +58,7 @@ func (array *Array) AddProtectionGroup(pg faclient.ProtectionGroup) (*faclient.P
 	return &pg, nil
 }
 
-func (array *Array) UpdateProtectionGroup(id string, pgPatch faclient.ProtectionGroupPatchBody) (*faclient.ProtectionGroup, error) {
+func (array *Array) UpdateProtectionGroup(id string, pgPatch flashclient.ProtectionGroupPatchBody) (*flashclient.ProtectionGroup, error) {
 	for i := range array.ProtectionGroups {
 		if array.ProtectionGroups[i].Id == id {
 			if pgPatch.Name != nil {
@@ -166,8 +166,8 @@ func (array *Array) protectionGroupIsVolumeMember(pgId string, volumeName string
 
 // GetProtectionGroupHostMembers returns members for all protection group ids.
 // When pgIds is empty, members for all protection groups are returned. When memberNames is empty, all members are returned.
-func (array *Array) GetProtectionGroupHostMembers(pgIds []string, memberNames []string) ([]faclient.ProtectionGroupHostMember, error) {
-	hostMembers := []faclient.ProtectionGroupHostMember{}
+func (array *Array) GetProtectionGroupHostMembers(pgIds []string, memberNames []string) ([]flashclient.ProtectionGroupHostMember, error) {
+	hostMembers := []flashclient.ProtectionGroupHostMember{}
 	for _, member := range array.ProtectionGroupsHostMembers {
 		if (len(pgIds) == 0 || slices.Contains(pgIds, member.Group.Id)) && (len(memberNames) == 0 || slices.Contains(memberNames, member.Member.Name)) {
 			hostMembers = append(hostMembers, *member)
@@ -179,8 +179,8 @@ func (array *Array) GetProtectionGroupHostMembers(pgIds []string, memberNames []
 
 // GetProtectionGroupHostGroupMembers returns members for all protection group ids.
 // When pgIds is empty, members for all protection groups are returned. When memberNames is empty, all members are returned.
-func (array *Array) GetProtectionGroupHostGroupMembers(pgIds []string, memberNames []string) ([]faclient.ProtectionGroupHostGroupMember, error) {
-	hostGroupMembers := []faclient.ProtectionGroupHostGroupMember{}
+func (array *Array) GetProtectionGroupHostGroupMembers(pgIds []string, memberNames []string) ([]flashclient.ProtectionGroupHostGroupMember, error) {
+	hostGroupMembers := []flashclient.ProtectionGroupHostGroupMember{}
 	for _, member := range array.ProtectionGroupsHostGroupMembers {
 		if (len(pgIds) == 0 || slices.Contains(pgIds, member.Group.Id)) && (len(memberNames) == 0 || slices.Contains(memberNames, member.Member.Name)) {
 			hostGroupMembers = append(hostGroupMembers, *member)
@@ -192,8 +192,8 @@ func (array *Array) GetProtectionGroupHostGroupMembers(pgIds []string, memberNam
 
 // GetProtectionGroupVolumeMembers returns members for all protection group ids.
 // When pgIds is empty, members for all protection groups are returned. When memberNames is empty, all members are returned.
-func (array *Array) GetProtectionGroupVolumeMembers(pgIds []string, memberIds []string) ([]faclient.ProtectionGroupVolumeMember, error) {
-	volumeMembers := []faclient.ProtectionGroupVolumeMember{}
+func (array *Array) GetProtectionGroupVolumeMembers(pgIds []string, memberIds []string) ([]flashclient.ProtectionGroupVolumeMember, error) {
+	volumeMembers := []flashclient.ProtectionGroupVolumeMember{}
 	for _, member := range array.ProtectionGroupsVolumeMembers {
 		if (len(pgIds) == 0 || slices.Contains(pgIds, member.Group.Id)) && (len(memberIds) == 0 || slices.Contains(memberIds, member.Member.Id)) {
 			volumeMembers = append(volumeMembers, *member)
@@ -206,7 +206,7 @@ func (array *Array) GetProtectionGroupVolumeMembers(pgIds []string, memberIds []
 // GetHostMembersOfProtectionGroup returns certain host members of a protection group.
 // When memberNames is empty, all members are returned. Returns nil if the protection group has no members.
 // Returns an error if the protection group has conflicting member types (host group or volume).
-func (array *Array) GetHostMembersOfProtectionGroup(pgId string, memberNames []string) ([]faclient.ProtectionGroupHostMember, error) {
+func (array *Array) GetHostMembersOfProtectionGroup(pgId string, memberNames []string) ([]flashclient.ProtectionGroupHostMember, error) {
 	hasHostMembers := array.protectionGroupHasHostMembers(pgId)
 	hasHostGroupMembers := array.protectionGroupHasHostGroupMembers(pgId)
 	hasVolumeMembers := array.protectionGroupHasVolumeMembers(pgId)
@@ -215,7 +215,7 @@ func (array *Array) GetHostMembersOfProtectionGroup(pgId string, memberNames []s
 	} else if hasHostGroupMembers || hasVolumeMembers {
 		return nil, fmt.Errorf("protection group can only have one type of members: %w", ErrInvalidProtectionGroup)
 	}
-	hostMembers := []faclient.ProtectionGroupHostMember{}
+	hostMembers := []flashclient.ProtectionGroupHostMember{}
 	for _, member := range array.ProtectionGroupsHostMembers {
 		if member.Group.Id == pgId && (len(memberNames) == 0 || slices.Contains(memberNames, member.Member.Name)) {
 			hostMembers = append(hostMembers, *member)
@@ -227,7 +227,7 @@ func (array *Array) GetHostMembersOfProtectionGroup(pgId string, memberNames []s
 // GetHostGroupMembersOfProtectionGroup returns certain host group members of a protection group.
 // When memberNames is empty, all members are returned. Returns nil if the protection group has no members.
 // Returns an error if the protection group has conflicting member types (host or volume).
-func (array *Array) GetHostGroupMembersOfProtectionGroup(pgId string, memberNames []string) ([]faclient.ProtectionGroupHostGroupMember, error) {
+func (array *Array) GetHostGroupMembersOfProtectionGroup(pgId string, memberNames []string) ([]flashclient.ProtectionGroupHostGroupMember, error) {
 	hasHostMembers := array.protectionGroupHasHostMembers(pgId)
 	hasHostGroupMembers := array.protectionGroupHasHostGroupMembers(pgId)
 	hasVolumeMembers := array.protectionGroupHasVolumeMembers(pgId)
@@ -236,7 +236,7 @@ func (array *Array) GetHostGroupMembersOfProtectionGroup(pgId string, memberName
 	} else if hasHostMembers || hasVolumeMembers {
 		return nil, fmt.Errorf("protection group can only have one type of members: %w", ErrInvalidProtectionGroup)
 	}
-	hostGroupMembers := []faclient.ProtectionGroupHostGroupMember{}
+	hostGroupMembers := []flashclient.ProtectionGroupHostGroupMember{}
 	for _, member := range array.ProtectionGroupsHostGroupMembers {
 		if member.Group.Id == pgId && (len(memberNames) == 0 || slices.Contains(memberNames, member.Member.Name)) {
 			hostGroupMembers = append(hostGroupMembers, *member)
@@ -248,7 +248,7 @@ func (array *Array) GetHostGroupMembersOfProtectionGroup(pgId string, memberName
 // GetVolumeMembersOfProtectionGroup returns certain volume members of a protection group.
 // When memberNames is empty, all members are returned. Returns nil if the protection group has no members.
 // Returns an error if the protection group has conflicting member types (host or host group).
-func (array *Array) GetVolumeMembersOfProtectionGroup(pgId string, memberIds []string) ([]faclient.ProtectionGroupVolumeMember, error) {
+func (array *Array) GetVolumeMembersOfProtectionGroup(pgId string, memberIds []string) ([]flashclient.ProtectionGroupVolumeMember, error) {
 	hasHostMembers := array.protectionGroupHasHostMembers(pgId)
 	hasHostGroupMembers := array.protectionGroupHasHostGroupMembers(pgId)
 	hasVolumeMembers := array.protectionGroupHasVolumeMembers(pgId)
@@ -257,7 +257,7 @@ func (array *Array) GetVolumeMembersOfProtectionGroup(pgId string, memberIds []s
 	} else if hasHostMembers || hasHostGroupMembers {
 		return nil, fmt.Errorf("protection group can only have one type of members: %w", ErrInvalidProtectionGroup)
 	}
-	volumeMembers := []faclient.ProtectionGroupVolumeMember{}
+	volumeMembers := []flashclient.ProtectionGroupVolumeMember{}
 	for _, member := range array.ProtectionGroupsVolumeMembers {
 		if member.Group.Id == pgId && (len(memberIds) == 0 || slices.Contains(memberIds, member.Member.Id)) {
 			volumeMembers = append(volumeMembers, *member)
@@ -266,7 +266,7 @@ func (array *Array) GetVolumeMembersOfProtectionGroup(pgId string, memberIds []s
 	return volumeMembers, nil
 }
 
-func (array *Array) AddProtectionGroupHostMember(pgId string, hostName string) (*faclient.ProtectionGroupHostMember, error) {
+func (array *Array) AddProtectionGroupHostMember(pgId string, hostName string) (*flashclient.ProtectionGroupHostMember, error) {
 	hasHostGroupMembers := array.protectionGroupHasHostGroupMembers(pgId)
 	hasVolumeMembers := array.protectionGroupHasVolumeMembers(pgId)
 	if hasHostGroupMembers {
@@ -289,7 +289,7 @@ func (array *Array) AddProtectionGroupHostMember(pgId string, hostName string) (
 		return nil, fmt.Errorf("host %s is already a member of protection group %s: %w", host.Name, pg.Name, ErrAlreadyExists)
 	}
 
-	member := &faclient.ProtectionGroupHostMember{
+	member := &flashclient.ProtectionGroupHostMember{
 		Context: pg.Context,
 		Group:   pg.ProtectionGroupShort,
 		Member:  host.HostShort,
@@ -299,7 +299,7 @@ func (array *Array) AddProtectionGroupHostMember(pgId string, hostName string) (
 	return member, nil
 }
 
-func (array *Array) AddProtectionGroupHostGroupMember(pgId string, hostGroupName string) (*faclient.ProtectionGroupHostGroupMember, error) {
+func (array *Array) AddProtectionGroupHostGroupMember(pgId string, hostGroupName string) (*flashclient.ProtectionGroupHostGroupMember, error) {
 	hasHostMembers := array.protectionGroupHasHostMembers(pgId)
 	hasVolumeMembers := array.protectionGroupHasVolumeMembers(pgId)
 	if hasHostMembers {
@@ -322,7 +322,7 @@ func (array *Array) AddProtectionGroupHostGroupMember(pgId string, hostGroupName
 		return nil, fmt.Errorf("host group %s is already a member of protection group %s: %w", hostGroup.Name, pg.Name, ErrAlreadyExists)
 	}
 
-	member := &faclient.ProtectionGroupHostGroupMember{
+	member := &flashclient.ProtectionGroupHostGroupMember{
 		Context: pg.Context,
 		Group:   pg.ProtectionGroupShort,
 		Member:  hostGroup.HostGroupShort,
@@ -332,7 +332,7 @@ func (array *Array) AddProtectionGroupHostGroupMember(pgId string, hostGroupName
 	return member, nil
 }
 
-func (array *Array) AddProtectionGroupVolumeMember(pgId string, volumeId string) (*faclient.ProtectionGroupVolumeMember, error) {
+func (array *Array) AddProtectionGroupVolumeMember(pgId string, volumeId string) (*flashclient.ProtectionGroupVolumeMember, error) {
 	hasHostMembers := array.protectionGroupHasHostMembers(pgId)
 	hasHostGroupMembers := array.protectionGroupHasHostGroupMembers(pgId)
 	if hasHostMembers {
@@ -355,7 +355,7 @@ func (array *Array) AddProtectionGroupVolumeMember(pgId string, volumeId string)
 		return nil, fmt.Errorf("volume %s is already a member of protection group %s: %w", volume.Name, pg.Name, ErrAlreadyExists)
 	}
 
-	member := &faclient.ProtectionGroupVolumeMember{
+	member := &flashclient.ProtectionGroupVolumeMember{
 		Context: pg.Context,
 		Group:   pg.ProtectionGroupShort,
 		Member:  volume.VolumeShort,
