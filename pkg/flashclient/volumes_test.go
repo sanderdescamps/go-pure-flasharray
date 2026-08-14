@@ -53,7 +53,7 @@ func TestVolumes(t *testing.T) {
 		}
 		t.Logf("Volume retrieved successfully by ID: name=%s, Id=%s", volume.Name, volume.Id)
 
-		err = client.DeleteVolume(volume.Id)
+		err = client.DestroyVolume(volume.Id)
 		if err != nil {
 			t.Fatalf("Failed to delete volume by ID: %v", err)
 		}
@@ -92,7 +92,7 @@ func TestVolumes(t *testing.T) {
 			t.Fatalf("Failed to create volume: %v", err)
 		}
 		t.Cleanup(func() {
-			client.DeleteVolume(volume.Id)
+			client.DestroyVolume(volume.Id)
 			client.EradicateVolume(volume.Id)
 		})
 
@@ -120,7 +120,7 @@ func TestVolumes(t *testing.T) {
 			t.Fatalf("Failed to create volume: %v", err)
 		}
 		t.Cleanup(func() {
-			client.DeleteVolume(volume.Id)
+			client.DestroyVolume(volume.Id)
 			client.EradicateVolume(volume.Id)
 		})
 
@@ -149,7 +149,7 @@ func TestVolumes(t *testing.T) {
 			t.Fatalf("Failed to create volume: %v", err)
 		}
 		t.Cleanup(func() {
-			client.DeleteVolume(volume.Id)
+			client.DestroyVolume(volume.Id)
 			client.EradicateVolume(volume.Id)
 		})
 
@@ -167,5 +167,67 @@ func TestVolumes(t *testing.T) {
 		if err == nil {
 			t.Errorf("Expected error when getting volume by old name %s after rename, got nil", name)
 		}
+	})
+
+	t.Run("volume_move_in_and_out_volume_group", func(t *testing.T) {
+		name := NewRandomName("volume", 8)
+		volume, err := client.CreateVolume(name, flashclient.VolumePost{Provisioned: 1048576})
+		if err != nil {
+			t.Fatalf("Failed to create volume: %v", err)
+		}
+		t.Cleanup(func() {
+			client.DestroyVolume(volume.Id)
+			client.EradicateVolume(volume.Id)
+		})
+
+		vGroupName1 := NewRandomName("volume_group_1", 8)
+		volumeGroup1, err := client.CreateVolumeGroup(vGroupName1, flashclient.VolumeGroupPost{})
+		if err != nil {
+			t.Fatalf("Failed to create volume group: %v", err)
+		}
+		t.Cleanup(func() {
+			client.DestroyVolumeGroup(volumeGroup1.Id)
+			client.EradicateVolumeGroup(volumeGroup1.Id)
+		})
+
+		vGroupName2 := NewRandomName("volume_group_2", 8)
+		volumeGroup2, err := client.CreateVolumeGroup(vGroupName2, flashclient.VolumeGroupPost{})
+		if err != nil {
+			t.Fatalf("Failed to create volume group: %v", err)
+		}
+		t.Cleanup(func() {
+			client.DestroyVolumeGroup(volumeGroup2.Id)
+			client.EradicateVolumeGroup(volumeGroup2.Id)
+		})
+
+		// move volume into volume group 1
+		updated, err := client.UpdateVolume(volume.Id, flashclient.VolumePatch{Name: toPtr(vGroupName1 + "/" + name)})
+		if err != nil {
+			t.Fatalf("Failed to move volume into volume group 1: %v", err)
+		}
+		if updated.VolumeGroup == nil || updated.VolumeGroup.Name != vGroupName1 {
+			t.Errorf("Expected volume group name %s, got %v", vGroupName1, updated.VolumeGroup)
+		}
+		t.Logf("Volume moved into volume group 1: %s -> %s", name, updated.Name)
+
+		// move volume into volume group 2
+		updated, err = client.UpdateVolume(volume.Id, flashclient.VolumePatch{Name: toPtr(vGroupName2 + "/" + name)})
+		if err != nil {
+			t.Fatalf("Failed to move volume into volume group 2: %v", err)
+		}
+		if updated.VolumeGroup == nil || updated.VolumeGroup.Name != vGroupName2 {
+			t.Errorf("Expected volume group name %s, got %v", vGroupName2, updated.VolumeGroup)
+		}
+		t.Logf("Volume moved into volume group 2: %s -> %s", name, updated.Name)
+
+		// move volume out of any volume group
+		updated, err = client.UpdateVolume(volume.Id, flashclient.VolumePatch{Name: toPtr(name)})
+		if err != nil {
+			t.Fatalf("Failed to move volume out of any volume group: %v", err)
+		}
+		if updated.VolumeGroup != nil {
+			t.Errorf("Expected volume group to be nil, got %v", updated.VolumeGroup)
+		}
+		t.Logf("Volume moved out of any volume group: %s -> %s", name, updated.Name)
 	})
 }

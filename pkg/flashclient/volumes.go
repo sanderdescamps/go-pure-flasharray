@@ -19,7 +19,7 @@ func NewQosDefault() Qos {
 
 func NewPriorityAdjustmentDefault() PriorityAdjustment {
 	return PriorityAdjustment{
-		PriorityAdjustmentOperator: "=",
+		PriorityAdjustmentOperator: "+",
 		PriorityAdjustmentValue:    0,
 	}
 }
@@ -71,7 +71,7 @@ type VolumePatch struct {
 	Provisioned             *int64              `json:"provisioned,omitempty"`
 	QoS                     *Qos                `json:"qos,omitempty"`
 	RequestedPromotionState *string             `json:"requested_promotion_state,omitempty"`
-	VolumeGroup             *VolumeGroupShort   `json:"volume_group,omitempty"`
+	// VolumeGroup             *VolumeGroupShort   `json:"volume_group,omitempty"`
 }
 
 type VolumePost struct {
@@ -179,6 +179,10 @@ func (fa *FAClient) UpdateVolume(id string, volumePatch VolumePatch) (*Volume, e
 	return &result.Items[0], nil
 }
 
+// CreateVolume creates a new volume with the specified name and properties.
+//
+// To add the volume to a volume group, use "{volume-group}/{volume}" as the name, where {volume-group} is the name of
+// the volume group and {volume} the name of the new volume. Make sure the volume group already exists before creating the volume.
 func (fa *FAClient) CreateVolume(name string, volumePost VolumePost) (*Volume, error) {
 	err := fa.RefreshSession()
 	if err != nil {
@@ -223,7 +227,7 @@ func (fa *FAClient) EradicateVolume(id string) error {
 	return nil
 }
 
-func (fa *FAClient) DeleteVolume(id string) error {
+func (fa *FAClient) DestroyVolume(id string) error {
 	_, err := fa.UpdateVolume(id, VolumePatch{
 		Destroyed: new(true),
 	})

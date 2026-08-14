@@ -216,7 +216,7 @@ func TestProtectionGroups(t *testing.T) {
 			t.Fatalf("Failed to create volume: %v", err)
 		}
 		t.Cleanup(func() {
-			client.DeleteVolume(vol.Id)
+			client.DestroyVolume(vol.Id)
 			client.EradicateVolume(vol.Id)
 		})
 

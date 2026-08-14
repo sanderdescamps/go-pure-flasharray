@@ -47,7 +47,7 @@ func TestConnections(t *testing.T) {
 			t.Fatalf("Failed to create volume: %v", err)
 		}
 		t.Cleanup(func() {
-			client.DeleteVolume(volume.Id)
+			client.DestroyVolume(volume.Id)
 			client.EradicateVolume(volume.Id)
 		})
 
@@ -111,7 +111,7 @@ func TestConnections(t *testing.T) {
 			t.Fatalf("Failed to create volume: %v", err)
 		}
 		t.Cleanup(func() {
-			client.DeleteVolume(volume.Id)
+			client.DestroyVolume(volume.Id)
 			client.EradicateVolume(volume.Id)
 		})
 

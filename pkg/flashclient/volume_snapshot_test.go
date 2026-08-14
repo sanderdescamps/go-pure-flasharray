@@ -28,7 +28,7 @@ func TestVolumeSnapshots(t *testing.T) {
 		}
 
 		t.Cleanup(func() {
-			err := client.DeleteVolume(volume.Id)
+			err := client.DestroyVolume(volume.Id)
 			if err != nil {
 				t.Fatalf("Failed to delete volume: %v", err)
 			}
@@ -92,7 +92,7 @@ func TestVolumeSnapshots(t *testing.T) {
 			t.Fatalf("Failed to create volume: %v", err)
 		}
 		t.Cleanup(func() {
-			client.DeleteVolume(volume.Id)
+			client.DestroyVolume(volume.Id)
 			client.EradicateVolume(volume.Id)
 		})
 
@@ -121,7 +121,7 @@ func TestVolumeSnapshots(t *testing.T) {
 			t.Fatalf("Failed to create volume: %v", err)
 		}
 		t.Cleanup(func() {
-			client.DeleteVolume(volume.Id)
+			client.DestroyVolume(volume.Id)
 			client.EradicateVolume(volume.Id)
 		})
 
