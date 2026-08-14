@@ -1,5 +1,9 @@
 # go-pure-flasharray
 
+!! Message from maintainer: This project is currently under development. Don't use it on any production system. I'm currently looking for a test environment to properly validate the code. Once past that, I will delete this message and release v1.0.0. 
+
+## About
+
 A Go client library for the Pure Storage FlashArray REST API v2, along with an HTTP mock server for testing.
 
 ## Packages
