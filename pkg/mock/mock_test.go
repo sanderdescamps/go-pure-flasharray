@@ -24,7 +24,7 @@ func TestMock(t *testing.T) {
 		server := mock.NewMock(array)
 		errCh := make(chan error)
 		go func() {
-			errCh <- server.Start("localhost", 8080)
+			errCh <- server.Start("localhost", 8081)
 		}()
 		time.Sleep(5 * time.Second) // Give the server a moment to start
 		server.Stop()
