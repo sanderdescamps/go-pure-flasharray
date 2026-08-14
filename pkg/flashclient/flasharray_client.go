@@ -154,6 +154,10 @@ func NewRestClient(endpoint string, apitoken string, config ...ClientConfig) (*F
 		apiVersion = cfg.ApiVersion
 	}
 
+	if VersionLessThan(apiVersion, "2.0") {
+		return nil, fmt.Errorf("API version %s is not supported by the FlashArray, minimum supported version is 2.0", apiVersion)
+	}
+
 	client := resty.New()
 	client.SetBaseURL(endpoint + "/api/" + apiVersion)
 	client.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: cfg.Insecure})
