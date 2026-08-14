@@ -89,7 +89,6 @@ func (array *Array) GetHostGroupMembers(hostGroupNames []string, hostNames []str
 	members := []flashclient.HostGroupMember{}
 	for _, host := range array.Hosts {
 		if len(hostNames) < 1 || slices.Contains(hostNames, host.Name) {
-			fmt.Printf("Check if groups %v contains %s\n", hostGroupNames, host.HostGroup.Name)
 			if len(hostGroupNames) < 1 || slices.Contains(hostGroupNames, host.HostGroup.Name) {
 				members = append(members, flashclient.HostGroupMember{
 					Group:  host.HostGroup,
