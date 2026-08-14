@@ -21,10 +21,13 @@ jobs:
       - name: Build
         run: go build ./...
 
+      - name: Build mock binary
+        run: go build -o mock ./cmd/mock
+
       - name: Test
         run: | 
           mkdir -p ./log
-          go run ./cmd/mock/main.go run --test-data &> ./log/mock.log &
+          ./mock run --test-data &> ./log/mock.log &
           sleep 5
           go test ./... | tee ./log/tests.log
           pkill go
