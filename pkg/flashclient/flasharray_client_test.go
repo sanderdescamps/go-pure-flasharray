@@ -11,15 +11,19 @@ import (
 	"github.com/sanderdescamps/go-pure-flasharray/pkg/flashclient"
 )
 
-// const (
-// 	DEFAULT_API_ENDPOINT = "http://localhost:8080"
-// 	DEFAULT_API_TOKEN    = "fake-auth-token"
-// )
+const (
+	DEFAULT_API_ENDPOINT = "http://localhost:8080"
+	DEFAULT_API_TOKEN    = "fake-auth-token"
+)
 
-// func init() {
-// 	os.Setenv("PUREFA_TEST_ENDPOINT", DEFAULT_API_ENDPOINT)
-// 	os.Setenv("PUREFA_TEST_API_TOKEN", DEFAULT_API_TOKEN)
-// }
+func init() {
+	if os.Getenv("PUREFA_TEST_ENDPOINT") == "" {
+		os.Setenv("PUREFA_TEST_ENDPOINT", DEFAULT_API_ENDPOINT)
+	}
+	if os.Getenv("PUREFA_TEST_API_TOKEN") == "" {
+		os.Setenv("PUREFA_TEST_API_TOKEN", DEFAULT_API_TOKEN)
+	}
+}
 
 func readEnvs(t *testing.T) (string, string, flashclient.ClientConfig) {
 	endpoint := os.Getenv("PUREFA_TEST_ENDPOINT")
