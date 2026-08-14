@@ -23,7 +23,7 @@ func (array *Array) GetVolumeGroupByName(name string) (*flashclient.VolumeGroup,
 			return array.VolumeGroups[i], nil
 		}
 	}
-	return nil, fmt.Errorf("volume group with name %s not found", name)
+	return nil, fmt.Errorf("volume group with name %s not found: %w", name, ErrNotFound)
 }
 
 func (array *Array) GetVolumeGroups() []flashclient.VolumeGroup {

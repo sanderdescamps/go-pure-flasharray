@@ -243,12 +243,17 @@ func (array *Array) LoadFromBytes(name string, results []byte) error {
 			return err
 		}
 		for _, volume := range items {
-			_, err := array.AddVolume(*volume)
-			if errors.Is(err, ErrAlreadyExists) {
-				vol, _ := array.GetVolume(volume.Id)
-				*vol = *volume
-			} else if err != nil {
-				return err
+			found := false
+			for i, existingVolume := range array.Volumes {
+				if existingVolume.Id == volume.Id {
+					array.Volumes[i] = volume
+					found = true
+					break
+				}
+			}
+
+			if !found {
+				array.Volumes = append(array.Volumes, volume)
 			}
 		}
 		return nil

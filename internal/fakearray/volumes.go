@@ -1,8 +1,10 @@
 package fakearray
 
 import (
+	"errors"
 	"fmt"
 	"math/rand"
+	"regexp"
 	"time"
 
 	"github.com/google/uuid"
@@ -109,6 +111,17 @@ func (array *Array) GetVolumes() []flashclient.Volume {
 	// return slices.Collect(maps.Values(array.Volumes)) --- IGNORE ---
 }
 
+// splitVolumeName splits a volume name into its volume group and volume name components.
+// If the volume name does not contain a volume group, the first return value will be an empty string.
+func splitVolumeName(name string) (string, string) {
+	vgroupRegex := regexp.MustCompile(`^([^/]+)/([^/]+)$`)
+	if vgroupRegex.MatchString(name) {
+		subMatches := vgroupRegex.FindStringSubmatch(name)
+		return subMatches[1], subMatches[2]
+	}
+	return "", name
+}
+
 func (array *Array) AddVolume(volume flashclient.Volume) (*flashclient.Volume, error) {
 	if _, err := array.GetVolumeByName(volume.Name); err == nil {
 		return nil, fmt.Errorf("volume with name %s already exists: %w", volume.Name, ErrAlreadyExists)
@@ -116,6 +129,19 @@ func (array *Array) AddVolume(volume flashclient.Volume) (*flashclient.Volume, e
 	if volume.Id == "" {
 		volume.Id = uuid.New().String()
 	}
+
+	_, volumeGroupName := splitVolumeName(volume.Name)
+	if volumeGroupName != volume.Name {
+		volumeGroup, err := array.GetVolumeGroupByName(volumeGroupName)
+		if errors.Is(err, ErrNotFound) {
+			return nil, fmt.Errorf("volume group with name %s does not exist: %w", volumeGroupName, ErrNotFound)
+		} else if err != nil {
+			return nil, fmt.Errorf("failed to get volume group by name %s: %v", volumeGroupName, err)
+		}
+
+		volume.VolumeGroup = &volumeGroup.VolumeGroupShort
+	}
+
 	array.Volumes = append(array.Volumes, &volume)
 	return &volume, nil
 }
@@ -124,6 +150,24 @@ func (array *Array) UpdateVolume(id string, volumePatch flashclient.VolumePatch)
 	for i := range array.Volumes {
 		if array.Volumes[i].Id == id {
 			if volumePatch.Name != nil {
+				oldVolumeGroupName, _ := splitVolumeName(array.Volumes[i].Name)
+				newVolumeGroupName, _ := splitVolumeName(*volumePatch.Name)
+				if oldVolumeGroupName != newVolumeGroupName {
+					if newVolumeGroupName == "" {
+						// Moving volume out of any volume group
+						array.Volumes[i].VolumeGroup = nil
+						array.logDebug("Volume with id=%s moved out of any volume group", array.Volumes[i].Id)
+					} else {
+						volumeGroup, err := array.GetVolumeGroupByName(newVolumeGroupName)
+						if errors.Is(err, ErrNotFound) {
+							return nil, fmt.Errorf("volume group with name %s does not exist: %w", newVolumeGroupName, ErrNotFound)
+						} else if err != nil {
+							return nil, fmt.Errorf("failed to get volume group by name %s: %v", newVolumeGroupName, err)
+						}
+						array.logDebug("Volume with id=%s moved into volume group %s", array.Volumes[i].Id, newVolumeGroupName)
+						array.Volumes[i].VolumeGroup = &volumeGroup.VolumeGroupShort
+					}
+				}
 				array.Volumes[i].Name = *volumePatch.Name
 			}
 			if volumePatch.Destroyed != nil {
@@ -143,9 +187,6 @@ func (array *Array) UpdateVolume(id string, volumePatch flashclient.VolumePatch)
 			}
 			if volumePatch.RequestedPromotionState != nil {
 				array.Volumes[i].RequestedPromotionState = *volumePatch.RequestedPromotionState
-			}
-			if volumePatch.VolumeGroup != nil {
-				array.Volumes[i].VolumeGroup = volumePatch.VolumeGroup
 			}
 
 			return array.Volumes[i], nil
