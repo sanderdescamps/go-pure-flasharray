@@ -149,7 +149,7 @@ func (m *Mock) authMiddleware(next http.Handler) http.Handler {
 		if xAuthToken := r.Header.Get("x-auth-token"); !m.DisableAuth && xAuthToken == "" {
 			httpJsonError(w, "Missing x-auth-token header", http.StatusUnauthorized)
 			return
-		} else if !m.DisableAuth && m.ValidateSessionToken(xAuthToken) {
+		} else if !m.DisableAuth && !m.ValidateSessionToken(xAuthToken) {
 			httpJsonError(w, "Unauthorized: invalid x-auth-token", http.StatusUnauthorized)
 			return
 		}
