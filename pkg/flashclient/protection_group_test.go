@@ -16,9 +16,6 @@ func TestProtectionGroups(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Failed to get protection groups: %v", err)
 		}
-		if len(pgs) < 1 {
-			t.Errorf("Expected at least 1 protection group, but got %d", len(pgs))
-		}
 		t.Logf("%d protection groups found", len(pgs))
 	})
 

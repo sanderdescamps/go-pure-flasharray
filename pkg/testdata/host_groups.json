@@ -1,0 +1,115 @@
+{
+  "continuation_token": null,
+  "items": [
+    {
+      "is_local": true,
+      "name": "z-cisco-fc",
+      "host_count": 4,
+      "connection_count": 0,
+      "space": {
+        "data_reduction": 1.0,
+        "shared": null,
+        "snapshots": 0,
+        "system": null,
+        "thin_provisioning": 0.0,
+        "total_physical": 0,
+        "total_provisioned": 0,
+        "total_reduction": 1.0,
+        "unique": 0,
+        "virtual": 0
+      }
+    },
+    {
+      "is_local": true,
+      "name": "z-cisco-nvme-fc",
+      "host_count": 4,
+      "connection_count": 0,
+      "space": {
+        "data_reduction": 1.0,
+        "shared": null,
+        "snapshots": 0,
+        "system": null,
+        "thin_provisioning": 0.0,
+        "total_physical": 0,
+        "total_provisioned": 0,
+        "total_reduction": 1.0,
+        "unique": 0,
+        "virtual": 0
+      }
+    },
+    {
+      "is_local": true,
+      "name": "Cluster01",
+      "host_count": 3,
+      "connection_count": 0,
+      "space": {
+        "data_reduction": 1.0,
+        "shared": null,
+        "snapshots": 0,
+        "system": null,
+        "thin_provisioning": 0.0,
+        "total_physical": 0,
+        "total_provisioned": 0,
+        "total_reduction": 1.0,
+        "unique": 0,
+        "virtual": 0
+      }
+    },
+    {
+      "is_local": true,
+      "name": "z-m70-a:z-cisco-FC",
+      "host_count": 4,
+      "connection_count": 0,
+      "space": {
+        "data_reduction": 1.0,
+        "shared": null,
+        "snapshots": 0,
+        "system": null,
+        "thin_provisioning": 0.0,
+        "total_physical": 0,
+        "total_provisioned": 0,
+        "total_reduction": 1.0,
+        "unique": 0,
+        "virtual": 0
+      }
+    },
+    {
+      "is_local": true,
+      "name": "z-m70-a:Cluster01",
+      "host_count": 3,
+      "connection_count": 0,
+      "space": {
+        "data_reduction": 1.0,
+        "shared": null,
+        "snapshots": 0,
+        "system": null,
+        "thin_provisioning": 0.0,
+        "total_physical": 0,
+        "total_provisioned": 0,
+        "total_reduction": 1.0,
+        "unique": 0,
+        "virtual": 0
+      }
+    },
+    {
+      "is_local": true,
+      "name": "z-m70-a:Cluster02",
+      "host_count": 3,
+      "connection_count": 0,
+      "space": {
+        "data_reduction": 1.0,
+        "shared": null,
+        "snapshots": 0,
+        "system": null,
+        "thin_provisioning": 0.0,
+        "total_physical": 0,
+        "total_provisioned": 0,
+        "total_reduction": 1.0,
+        "unique": 0,
+        "virtual": 0
+      }
+    }
+  ],
+  "more_items_remaining": false,
+  "total_item_count": null
+}

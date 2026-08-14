@@ -22,8 +22,8 @@ func TestConnections(t *testing.T) {
 		t.Logf("%d connections found", len(connections))
 
 		for _, c := range connections {
-			if c.Host.Name == "" {
-				t.Errorf("Connection has empty host name: %+v", c)
+			if c.Host.Name == "" && c.HostGroup.Name == "" {
+				t.Errorf("Connection has empty host name and host group: %+v", c)
 			}
 			if c.Volume.Name == "" {
 				t.Errorf("Connection has empty volume name: %+v", c)
